@@ -71,28 +71,28 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
             </p>
           )}
 
-          <fieldset className="space-y-5">
+          <fieldset className="space-y-6">
             <legend className="mb-5 font-serif text-2xl">{t.sectionYou}</legend>
             <Field label={t.name}><input name="name" required autoComplete="name" defaultValue={meta?.name} className="field" /></Field>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <Field label={t.email}><input name="email" type="email" autoComplete="email" defaultValue={session?.user.email} className="field" /></Field>
               <Field label={t.phone}><input name="phone" type="tel" autoComplete="tel" className="field" /></Field>
             </div>
             <p className="text-xs leading-relaxed text-muted">{t.contactHint}</p>
           </fieldset>
 
-          <fieldset className="mt-8 space-y-5 border-t border-line pt-8">
+          <fieldset className="mt-10 space-y-6 border-t border-line pt-10">
             <legend className="sr-only">{t.sectionPickup}</legend>
             <h2 className="font-serif text-2xl" aria-hidden>{t.sectionPickup}</h2>
             <p className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-relaxed">{t.disclaimer}</p>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               <Field label={t.date}><input name="date" type="date" required min={today} defaultValue={today} className="field" /></Field>
               <Field label={t.time}><input name="time" type="time" required min="06:30" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
             </div>
             <Field label={t.notes}><textarea name="notes" rows={3} className="field resize-y" /></Field>
           </fieldset>
 
-          <div className="mt-8 space-y-4 border-t border-line pt-8">
+          <div className="mt-10 space-y-4 border-t border-line pt-10">
             {error && <p key={error} role="alert" className="animate-in rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
             <button disabled={sending || cart.lines.length === 0} className="btn-primary w-full py-4 text-base">
               {sending ? t.sending : `${t.submit} · ${formatPrice(cart.totalCents, lang)}`}
@@ -135,5 +135,5 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
 const Shell = ({ children }: { children: React.ReactNode }) => <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">{children}</div>;
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block space-y-2 text-sm"><span className="font-medium">{label}</span>{children}</label>;
+  return <label className="flex flex-col gap-3 text-sm"><span className="font-medium leading-none">{label}</span>{children}</label>;
 }
