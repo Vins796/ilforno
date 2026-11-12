@@ -3,6 +3,7 @@ import { dictionaries, type Lang } from "@/lib/i18n";
 import { getProducts } from "@/lib/data";
 import { categories } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
+import { indicazioni, indirizzo, mappaEmbed, negozio } from "@/lib/negozio";
 
 // shortcut: recensioni di esempio, da sostituire con quelle vere (o widget Google) quando disponibili
 const reviews = [
@@ -11,8 +12,6 @@ const reviews = [
   { name: "Elena", text: { it: "Torta di nocciole per il compleanno di mia figlia: perfetta e buonissima.", en: "Hazelnut cake for my daughter's birthday: perfect and delicious." } },
 ];
 
-const PHONE = "+39 011 000 0000"; // shortcut: numero provvisorio
-const INSTAGRAM = "https://www.instagram.com/"; // shortcut: inserire il profilo vero
 
 export default async function Home({ params }: PageProps<"/[lang]">) {
   const lang = (await params).lang as Lang;
@@ -40,7 +39,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* CHI SIAMO */}
-      <section id="about" className="reveal mx-auto grid max-w-6xl scroll-mt-20 items-center gap-12 px-4 py-24 sm:px-6 md:grid-cols-2 md:py-32">
+      <section id="about" className="reveal mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 sm:px-6 md:grid-cols-2 md:py-32">
         <div className="grain aspect-[4/5] rounded-[2rem]" role="img" aria-label="Marco e Anna" />
         <div>
           <p className="kicker">{t.about.kicker}</p>
@@ -99,11 +98,11 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* DOVE SIAMO */}
-      <section id="visit" className="reveal mx-auto grid max-w-6xl scroll-mt-20 gap-10 px-4 py-24 sm:px-6 md:grid-cols-2">
+      <section id="visit" className="reveal mx-auto grid max-w-6xl gap-10 px-4 py-24 sm:px-6 md:grid-cols-2">
         <div>
           <p className="kicker">{t.visit.kicker}</p>
           <h2 className="mt-3 font-serif text-4xl sm:text-5xl">{t.visit.title}</h2>
-          <p className="mt-6 text-lg">{t.visit.address}</p>
+          <p className="mt-6 text-lg">{indirizzo(lang)}</p>
           <h3 className="mt-8 font-semibold">{t.visit.hours}</h3>
           <dl className="mt-3 space-y-2 text-muted">
             {t.visit.days.map(([d, h]) => (
@@ -111,13 +110,17 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             ))}
           </dl>
           <div className="mt-8 flex flex-wrap gap-3">
-            <a href={`tel:${PHONE.replace(/\s/g, "")}`} className="btn-primary">{t.visit.phone}: {PHONE}</a>
-            <a href={INSTAGRAM} target="_blank" rel="noopener noreferrer" className="btn-ghost">{t.visit.instagram}</a>
+            <a href={`tel:${negozio.telefono}`} className="btn-primary">{t.visit.phone} {negozio.telefonoVisibile}</a>
+            <a href={indicazioni} target="_blank" rel="noopener noreferrer" className="btn-ghost">{t.visit.directions}</a>
+          </div>
+          <div className="mt-4 flex gap-4 text-sm">
+            <a href={negozio.instagram} target="_blank" rel="noopener noreferrer" className="text-muted underline-offset-4 hover:text-fg hover:underline">{t.visit.instagram}</a>
+            <a href={negozio.facebook} target="_blank" rel="noopener noreferrer" className="text-muted underline-offset-4 hover:text-fg hover:underline">{t.visit.facebook}</a>
           </div>
         </div>
         <iframe
-          title="Mappa Il Forno, Poirino"
-          src="https://maps.google.com/maps?q=Poirino%20TO&z=15&output=embed"
+          title={`${negozio.nome} — ${indirizzo(lang)}`}
+          src={mappaEmbed}
           className="min-h-80 w-full rounded-3xl border border-line grayscale-[30%]"
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"

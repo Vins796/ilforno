@@ -58,51 +58,72 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
     <Shell>
       <ViewTransition exit="pop" default="none">
       <div>
-      <h1 className="font-serif text-5xl">{t.title}</h1>
-      <p className="mt-3 text-muted">{t.pickupOnly} · {t.payOnPickup}</p>
-      <div className="mt-6 rounded-2xl border border-accent/40 bg-accent/10 p-4 text-sm">{t.disclaimer}</div>
+      <header className="max-w-2xl">
+        <h1 className="font-serif text-4xl sm:text-5xl">{t.title}</h1>
+        <p className="mt-3 text-muted">{t.pickupOnly} · {t.payOnPickup}</p>
+      </header>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_380px]">
-        <form onSubmit={submit} className="space-y-4" key={session?.user.id ?? "guest"}>
+      <div className="mt-10 grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-12">
+        <form onSubmit={submit} className="rounded-3xl border border-line bg-card p-6 sm:p-8" key={session?.user.id ?? "guest"}>
           {session === null && (
-            <p className="text-sm text-muted">
-              {t.guest} <Link href={`/${lang}/account?next=checkout`} className="text-accent underline">{t.login}</Link>
+            <p className="mb-8 rounded-2xl bg-soft px-4 py-3 text-sm text-muted">
+              {t.guest} <Link href={`/${lang}/account?next=checkout`} className="font-medium text-accent underline underline-offset-4">{t.login}</Link>
             </p>
           )}
-          <Field label={t.name}><input name="name" required autoComplete="name" defaultValue={meta?.name} className="field" /></Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t.email}><input name="email" type="email" autoComplete="email" defaultValue={session?.user.email} className="field" /></Field>
-            <Field label={t.phone}><input name="phone" type="tel" autoComplete="tel" className="field" /></Field>
+
+          <fieldset className="space-y-5">
+            <legend className="mb-5 font-serif text-2xl">{t.sectionYou}</legend>
+            <Field label={t.name}><input name="name" required autoComplete="name" defaultValue={meta?.name} className="field" /></Field>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label={t.email}><input name="email" type="email" autoComplete="email" defaultValue={session?.user.email} className="field" /></Field>
+              <Field label={t.phone}><input name="phone" type="tel" autoComplete="tel" className="field" /></Field>
+            </div>
+            <p className="text-xs leading-relaxed text-muted">{t.contactHint}</p>
+          </fieldset>
+
+          <fieldset className="mt-8 space-y-5 border-t border-line pt-8">
+            <legend className="sr-only">{t.sectionPickup}</legend>
+            <h2 className="font-serif text-2xl" aria-hidden>{t.sectionPickup}</h2>
+            <p className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-relaxed">{t.disclaimer}</p>
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label={t.date}><input name="date" type="date" required min={today} defaultValue={today} className="field" /></Field>
+              <Field label={t.time}><input name="time" type="time" required min="06:30" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
+            </div>
+            <Field label={t.notes}><textarea name="notes" rows={3} className="field resize-y" /></Field>
+          </fieldset>
+
+          <div className="mt-8 space-y-4 border-t border-line pt-8">
+            {error && <p key={error} role="alert" className="animate-in rounded-xl bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
+            <button disabled={sending || cart.lines.length === 0} className="btn-primary w-full py-4 text-base">
+              {sending ? t.sending : `${t.submit} · ${formatPrice(cart.totalCents, lang)}`}
+            </button>
           </div>
-          <p className="text-xs text-muted">{t.contactHint}</p>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label={t.date}><input name="date" type="date" required min={today} defaultValue={today} className="field" /></Field>
-            <Field label={t.time}><input name="time" type="time" required min="06:30" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
-          </div>
-          <Field label={t.notes}><textarea name="notes" rows={3} className="field" /></Field>
-          {error && <p key={error} role="alert" className="animate-in rounded-xl bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
-          <button disabled={sending || cart.lines.length === 0} className="btn-primary w-full sm:w-auto">{sending ? t.sending : t.submit}</button>
         </form>
 
-        <aside className="h-fit rounded-3xl border border-line bg-card p-6">
+        <aside className="rounded-3xl border border-line bg-card p-6 sm:p-8 lg:sticky lg:top-24">
           <h2 className="font-serif text-2xl">{dictionaries[lang].cart.title}</h2>
-          {cart.lines.length === 0 ? <p className="mt-4 text-muted">{dictionaries[lang].cart.empty}</p> : (
-            <ul className="mt-4 space-y-3">
+          {cart.lines.length === 0 ? <p className="mt-6 text-muted">{dictionaries[lang].cart.empty}</p> : (
+            <ul className="mt-6 divide-y divide-line">
               {cart.lines.map((l) => {
                 const p = cart.products.find((p) => p.id === l.productId);
                 return p && (
-                  <li key={l.productId} className="animate-in flex items-center justify-between gap-3 text-sm">
-                    <span className="min-w-0 flex-1 truncate">{lang === "it" ? p.name_it : p.name_en}</span>
+                  <li key={l.productId} className="animate-in flex items-center gap-3 py-4 first:pt-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium leading-snug">{lang === "it" ? p.name_it : p.name_en}</p>
+                      <p className="mt-0.5 text-xs text-muted">{formatPrice(p.price_cents, lang)} / {lang === "it" ? p.unit_it : p.unit_en}</p>
+                    </div>
                     <Qty value={l.quantity} onChange={(q) => cart.setQty(l.productId, q)} />
-                    <span className="w-16 text-right tabular-nums">{formatPrice(p.price_cents * l.quantity, lang)}</span>
+                    <span className="w-16 text-right text-sm tabular-nums">{formatPrice(p.price_cents * l.quantity, lang)}</span>
                   </li>
                 );
               })}
             </ul>
           )}
-          <div className="mt-6 flex justify-between border-t border-line pt-4 text-lg">
-            <span>{dictionaries[lang].cart.total}</span><span className="font-semibold">{formatPrice(cart.totalCents, lang)}</span>
+          <div className="mt-6 flex items-baseline justify-between border-t border-line pt-5">
+            <span className="text-muted">{dictionaries[lang].cart.total}</span>
+            <span className="font-serif text-3xl">{formatPrice(cart.totalCents, lang)}</span>
           </div>
+          <p className="mt-4 text-xs leading-relaxed text-muted">{t.pickupOnly} · {t.payOnPickup}</p>
         </aside>
       </div>
       </div>
@@ -111,8 +132,8 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
   );
 }
 
-const Shell = ({ children }: { children: React.ReactNode }) => <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">{children}</div>;
+const Shell = ({ children }: { children: React.ReactNode }) => <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-20">{children}</div>;
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block space-y-1.5 text-sm"><span className="font-medium">{label}</span>{children}</label>;
+  return <label className="block space-y-2 text-sm"><span className="font-medium">{label}</span>{children}</label>;
 }

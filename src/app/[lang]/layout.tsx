@@ -6,6 +6,7 @@ import { getProducts } from "@/lib/data";
 import { CartProvider } from "@/components/cart";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { jsonLd } from "@/lib/negozio";
 import "../globals.css";
 
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", axes: ["SOFT", "opsz"] });
@@ -34,6 +35,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
     <html lang={lang} suppressHydrationWarning data-scroll-behavior="smooth" className={`${fraunces.variable} ${inter.variable}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body className="flex min-h-dvh flex-col font-sans antialiased">
         <CartProvider products={products}>
