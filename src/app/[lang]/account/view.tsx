@@ -35,7 +35,7 @@ export function AccountView({ lang }: { lang: Lang }) {
           {orders?.length === 0 && <p className="mt-4 text-muted">{t.account.noOrders}</p>}
           <ul className="mt-6 space-y-4">
             {orders?.map((o) => (
-              <li key={o.id} className="rounded-2xl border border-line bg-card p-5">
+              <li key={o.id} className="animate-in rounded-2xl border border-line bg-card p-5">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="font-medium">#{o.number} · {new Intl.DateTimeFormat(lang, { timeZone: TZ, dateStyle: "medium", timeStyle: "short" }).format(new Date(o.pickup_at))}</span>
                   <span className="rounded-full bg-soft px-3 py-1 text-xs">{t.status[o.status]}</span>

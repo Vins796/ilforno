@@ -29,12 +29,12 @@ export function AuthForm({ lang, allowSignup = true }: { lang: Lang; allowSignup
   return (
     <form onSubmit={submit} className="mx-auto max-w-sm space-y-4 rounded-3xl border border-line bg-card p-8">
       <h2 className="font-serif text-3xl">{mode === "login" ? t.login : t.register}</h2>
-      {mode === "register" && <Field label={t.name}><input name="name" required autoComplete="name" className="field" /></Field>}
+      {mode === "register" && <div className="animate-in"><Field label={t.name}><input name="name" required autoComplete="name" className="field" /></Field></div>}
       <Field label="Email"><input name="email" type="email" required autoComplete="email" className="field" /></Field>
       <Field label={t.password}>
         <input name="password" type="password" required minLength={8} autoComplete={mode === "login" ? "current-password" : "new-password"} className="field" />
       </Field>
-      {msg && <p role="alert" className="text-sm text-muted">{msg}</p>}
+      {msg && <p key={msg} role="alert" className="animate-in text-sm text-muted">{msg}</p>}
       <button disabled={busy} className="btn-primary w-full">{mode === "login" ? t.login : t.register}</button>
       {allowSignup && (
         <p className="text-center text-sm text-muted">

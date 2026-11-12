@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { addTransitionType, startTransition, useEffect, useState, ViewTransition } from "react";
 import { dictionaries, type Lang } from "@/lib/i18n";
 import { categories, type Category, type Product } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
@@ -22,7 +22,10 @@ export function Catalog({ products, lang }: { products: Product[]; lang: Lang })
 
   const pick = (c: Category | null) => {
     history.replaceState(null, "", c ? `#${c}` : location.pathname);
-    setFilter(c);
+    startTransition(() => {
+      addTransitionType("filtro");
+      setFilter(c);
+    });
   };
   const shown = filter ? products.filter((p) => p.category === filter) : products;
 
@@ -37,7 +40,12 @@ export function Catalog({ products, lang }: { products: Product[]; lang: Lang })
         ))}
       </div>
       <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {shown.map((p) => <ProductCard key={p.id} product={p} lang={lang} />)}
+        {shown.map((p) => (
+          // Solo al cambio filtro: i prodotti che restano scivolano al loro posto, gli altri sfumano
+          <ViewTransition key={p.id} name={`prodotto-${p.id}`} enter={{ filtro: "pop", default: "none" }} exit={{ filtro: "pop", default: "none" }} update={{ filtro: "auto", default: "none" }} share="none" default="none">
+            <div className="h-full"><ProductCard product={p} lang={lang} /></div>
+          </ViewTransition>
+        ))}
       </div>
     </>
   );

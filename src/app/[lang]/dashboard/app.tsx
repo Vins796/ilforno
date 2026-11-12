@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useRef, useState, ViewTransition } from "react";
 import { dictionaries, formatPrice } from "@/lib/i18n";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
 import { useSession } from "@/lib/use-session";
@@ -46,16 +46,20 @@ export function DashboardApp() {
           <a href="/it"><Logo className="text-xl" /></a>
           <nav className="order-last flex w-full gap-1 sm:order-none sm:ml-6 sm:w-auto">
             {tabs.map(([id, label]) => (
-              <button key={id} onClick={() => setTab(id)} className={`flex-1 rounded-full px-4 py-2 text-sm sm:flex-none ${tab === id ? "bg-fg text-bg" : "hover:bg-soft"}`}>{label}</button>
+              <button key={id} onClick={() => startTransition(() => setTab(id))} className={`flex-1 rounded-full px-4 py-2 text-sm sm:flex-none ${tab === id ? "bg-fg text-bg" : "hover:bg-soft"}`}>{label}</button>
             ))}
           </nav>
           <button onClick={() => supabase().auth.signOut()} className="ml-auto text-sm text-muted hover:text-fg">Esci</button>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
-        {tab === "orders" && <Orders token={token} />}
-        {tab === "products" && <Products token={token} />}
-        {tab === "stats" && <Stats />}
+        <ViewTransition key={tab} enter="pop" exit="pop" default="none">
+          <div>
+            {tab === "orders" && <Orders token={token} />}
+            {tab === "products" && <Products token={token} />}
+            {tab === "stats" && <Stats />}
+          </div>
+        </ViewTransition>
       </div>
     </div>
   );
@@ -83,11 +87,12 @@ function Orders({ token }: { token: string }) {
     const list = (data as Order[]) ?? [];
     if (known.current && list.some((o) => !known.current!.has(o.id))) alertNewOrder();
     known.current = new Set(list.map((o) => o.id));
-    setOrders(list);
+    // In una transition: le schede degli ordini scivolano da una colonna all'altra
+    startTransition(() => setOrders(list));
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento iniziale
+     
     load();
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
     let timer: ReturnType<typeof setTimeout>;
@@ -128,8 +133,12 @@ function Orders({ token }: { token: string }) {
             <section key={c} className="rounded-3xl bg-soft p-3">
               <h2 className="flex items-center justify-between px-2 py-2 font-medium">{st[c]} <span className="rounded-full bg-card px-2.5 text-sm">{list.length}</span></h2>
               <div className="space-y-3">
-                {list.map((o) => <OrderCard key={o.id} o={o} busy={busy === o.id} onMove={(s) => move(o, s)} />)}
-                {list.length === 0 && <p className="px-2 py-6 text-center text-sm text-muted">Nessun ordine</p>}
+                {list.map((o) => (
+                  <ViewTransition key={o.id} name={`ordine-${o.id}`} enter="pop" exit="pop">
+                    <div><OrderCard o={o} busy={busy === o.id} onMove={(s) => move(o, s)} /></div>
+                  </ViewTransition>
+                ))}
+                {list.length === 0 && <p className="animate-in px-2 py-6 text-center text-sm text-muted">Nessun ordine</p>}
               </div>
             </section>
           );
@@ -138,7 +147,7 @@ function Orders({ token }: { token: string }) {
       {done.length > 0 && (
         <details className="mt-8">
           <summary className="cursor-pointer text-sm text-muted">Completati e annullati (ultimi 2 giorni): {done.length}</summary>
-          <ul className="mt-3 divide-y divide-line rounded-2xl border border-line bg-card text-sm">
+          <ul className="animate-in mt-3 divide-y divide-line rounded-2xl border border-line bg-card text-sm">
             {done.map((o) => (
               <li key={o.id} className="flex flex-wrap justify-between gap-2 px-4 py-3">
                 <span>#{o.number} · {o.customer_name}</span>

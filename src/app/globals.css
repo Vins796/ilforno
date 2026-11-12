@@ -39,11 +39,13 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg); /* evita il lampo bianco mentre il body sfuma all'apertura */
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
+  animation: vt-fade 500ms ease-out both; /* apertura del sito: solo al caricamento, non nei cambi pagina */
 }
 
 @utility kicker {
@@ -73,6 +75,106 @@ body {
     linear-gradient(135deg, #3a2618, #1c130c);
 }
 
+/* ───────────── Transizioni ───────────── */
+
+:root {
+  --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* Ogni elemento interattivo cambia colore, bordo e dimensione in modo morbido */
+@layer base {
+  a, button, input, select, textarea, summary, label {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform, filter, translate, scale;
+    transition-duration: 200ms;
+    transition-timing-function: var(--ease-out);
+  }
+  button:not(:disabled):active, a:active {
+    scale: 0.97;
+  }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; translate: 0 12px; }
+}
+@keyframes vt-fade {
+  from { opacity: 0; }
+}
+@keyframes vt-pop {
+  from { opacity: 0; scale: 0.96; }
+}
+@keyframes fade-down {
+  from { opacity: 0; translate: 0 -12px; }
+}
+@keyframes hero-zoom {
+  from { opacity: 0; scale: 1.08; }
+}
+
+/* Apertura della home: header, video e testi entrano in sequenza */
+@utility intro-header {
+  animation: fade-down 700ms var(--ease-out) 150ms both;
+}
+@utility intro-video {
+  animation: hero-zoom 1800ms var(--ease-out) both;
+}
+@utility intro-text {
+  animation: fade-up 900ms var(--ease-out) both;
+  animation-delay: var(--delay, 300ms);
+}
+
+/* Comparsa morbida per elementi che appaiono senza una transizione di React */
+@utility animate-in {
+  animation: fade-up 300ms var(--ease-out) both;
+}
+
+/* Sezioni della home che emergono durante lo scroll (solo browser che lo supportano) */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: fade-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 60%;
+  }
+}
+
+/* View Transitions: cambio pagina (anche il cambio lingua, che ricarica la pagina) e cambio tema */
+@view-transition {
+  navigation: auto;
+}
+::view-transition {
+  pointer-events: none; /* i clic durante l'animazione arrivano comunque alla pagina */
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 350ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-group(*) {
+  animation-duration: 350ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(.page) {
+  animation: 150ms ease-in both vt-fade reverse;
+}
+::view-transition-new(.page) {
+  animation: 260ms var(--ease-out) 100ms both vt-fade, 380ms var(--ease-out) both fade-up;
+}
+::view-transition-new(.pop):only-child {
+  animation: 240ms var(--ease-out) both vt-pop;
+}
+::view-transition-old(.pop):only-child {
+  animation: 160ms ease-in both vt-pop reverse;
+}
+
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
+  }
+  .reveal { animation: none !important; }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

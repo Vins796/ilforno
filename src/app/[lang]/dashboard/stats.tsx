@@ -47,7 +47,7 @@ export function Stats() {
         ))}
       </div>
       {!s ? <p className="text-muted">Caricamento…</p> : (
-        <>
+        <div key={days} className="animate-in space-y-6">
           <div className="grid gap-4 sm:grid-cols-3">
             <Tile label="Incasso ordini online" value={formatPrice(s.revenue, "it")} />
             <Tile label="Ordini" value={String(s.count)} />
@@ -78,7 +78,7 @@ export function Stats() {
             )}
           </Panel>
           <p className="text-xs text-muted">Conta solo gli ordini dal sito (esclusi gli annullati), non le vendite al banco.</p>
-        </>
+        </div>
       )}
     </div>
   );

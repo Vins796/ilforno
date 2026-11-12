@@ -27,7 +27,7 @@ export function ProductCard({ product, lang }: { product: Product; lang: Lang })
   const name = lang === "it" ? product.name_it : product.name_en;
 
   return (
-    <article className="group flex flex-col overflow-hidden rounded-3xl border border-line bg-card">
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-card transition duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative">
         <ProductImage product={product} className="aspect-[4/3]" />
         <div className="absolute left-3 top-3 flex gap-2">

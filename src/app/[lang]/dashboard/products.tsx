@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useEffect, useState, ViewTransition } from "react";
 import { dictionaries, formatPrice } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { categories, type Product } from "@/lib/types";
@@ -16,13 +16,15 @@ const empty: Omit<Product, "id"> = {
 
 export function Products({ token }: { token: string }) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [editing, setEditing] = useState<Partial<Product> | null>(null);
+  const [editing, setEditingNow] = useState<Partial<Product> | null>(null);
+  // Apertura e chiusura della finestra di modifica con dissolvenza
+  const setEditing = (p: Partial<Product> | null) => startTransition(() => setEditingNow(p));
 
   const load = useCallback(async () => {
     const { data } = await supabase().from("products").select("*").order("sort");
-    setProducts((data as Product[]) ?? []);
+    startTransition(() => setProducts((data as Product[]) ?? []));
   }, []);
-  // eslint-disable-next-line react-hooks/set-state-in-effect -- caricamento iniziale
+   
   useEffect(() => { load(); }, [load]);
 
   async function save(p: Partial<Product>) {
@@ -61,7 +63,7 @@ export function Products({ token }: { token: string }) {
           </li>
         ))}
       </ul>
-      {editing && <Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={remove} />}
+      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={remove} /></ViewTransition>}
     </>
   );
 }
