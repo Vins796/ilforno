@@ -1,10 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { dictionaries, formatPrice, type Lang } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
-import { useSession } from "@/lib/use-session";
+import { useIsStaff, useSession } from "@/lib/use-session";
 import { TZ } from "@/lib/orders";
 import type { Order } from "@/lib/types";
 import { AuthForm } from "@/components/auth-form";
@@ -12,15 +13,17 @@ import { AuthForm } from "@/components/auth-form";
 export function AccountView({ lang }: { lang: Lang }) {
   const t = dictionaries[lang];
   const session = useSession();
+  const staff = useIsStaff();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[] | null>(null);
 
   useEffect(() => {
-    if (!session) return;
+    // Lo staff non ha ordini personali: niente caricamento (staff è undefined finché non lo sappiamo)
+    if (!session || staff !== false) return;
     if (new URLSearchParams(location.search).get("next") === "checkout") return router.replace(`/${lang}/checkout`);
     supabase().from("orders").select("*, order_items(*)").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(20)
       .then(({ data }) => setOrders((data as Order[]) ?? []));
-  }, [session, lang, router]);
+  }, [session, staff, lang, router]);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
@@ -31,6 +34,16 @@ export function AccountView({ lang }: { lang: Lang }) {
             <p className="text-muted">{session.user.email}</p>
             <button onClick={() => supabase().auth.signOut()} className="btn-ghost">{t.account.logout}</button>
           </div>
+          {staff && (
+            <Link href={`/${lang}/dashboard`} className="animate-in mt-8 flex items-center justify-between gap-4 rounded-3xl border border-accent/40 bg-accent/10 p-6 transition hover:bg-accent/15">
+              <div>
+                <p className="font-serif text-2xl">{t.account.dashboard}</p>
+                <p className="mt-1 text-sm text-muted">{t.account.dashboardHint}</p>
+              </div>
+              <span className="text-2xl text-accent" aria-hidden>→</span>
+            </Link>
+          )}
+          {staff === false && (<>
           <h2 className="mt-12 font-serif text-3xl">{t.account.orders}</h2>
           {orders?.length === 0 && <p className="mt-4 text-muted">{t.account.noOrders}</p>}
           <ul className="mt-6 space-y-4">
@@ -45,6 +58,7 @@ export function AccountView({ lang }: { lang: Lang }) {
               </li>
             ))}
           </ul>
+          </>)}
         </>
       )}
     </div>

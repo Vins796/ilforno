@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { startTransition, useEffect, useState, useSyncExternalStore, ViewTransition } from "react";
 import { dictionaries, formatPrice, type Lang } from "@/lib/i18n";
 import { useCart } from "./cart";
+import { useIsStaff } from "@/lib/use-session";
 
 export function Logo({ className = "" }: { className?: string }) {
   // shortcut: logo testuale provvisorio, sostituire con il file del logo quando arriva
@@ -16,6 +17,7 @@ export function Header({ lang }: { lang: Lang }) {
   const pathname = usePathname();
   const cart = useCart();
   const [menu, setMenu] = useState(false);
+  const staff = useIsStaff();
   const other: Lang = lang === "it" ? "en" : "it";
   const switchHref = pathname.replace(/^\/(it|en)/, `/${other}`);
   const links = [
@@ -42,6 +44,12 @@ export function Header({ lang }: { lang: Lang }) {
               {other}
             </a>
             <ThemeToggle lang={lang} />
+            {staff && (
+              // Solo per chi è staff (Marco e Anna): scorciatoia alla dashboard
+              <Link href={`/${lang}/dashboard`} className="animate-in rounded-full p-2 text-accent hover:bg-soft" aria-label={t.account.dashboard} title={t.account.dashboard}>
+                <Icon d="M4 5h7v7H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 14h7v5H4z" />
+              </Link>
+            )}
             <Link href={`/${lang}/account`} className="hidden rounded-full p-2 hover:bg-soft sm:block" aria-label={t.nav.account}>
               <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />
             </Link>
@@ -59,7 +67,7 @@ export function Header({ lang }: { lang: Lang }) {
         {menu && (
           <ViewTransition enter="pop" exit="pop" default="none">
             <nav className="flex flex-col gap-1 border-t border-line px-4 py-3 md:hidden">
-              {[...links, [`/${lang}/account`, t.nav.account] as const].map(([href, label]) => (
+              {[...links, [`/${lang}/account`, t.nav.account] as const, ...(staff ? [[`/${lang}/dashboard`, t.account.dashboard] as const] : [])].map(([href, label]) => (
                 <Link key={href} href={href} onClick={() => startTransition(() => setMenu(false))} className="rounded-lg px-3 py-3 hover:bg-soft">{label}</Link>
               ))}
             </nav>
