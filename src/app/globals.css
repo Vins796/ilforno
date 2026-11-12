@@ -39,11 +39,13 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg); /* evita il lampo bianco mentre il body sfuma all'apertura */
 }
 
 body {
   background: var(--bg);
   color: var(--fg);
+  animation: vt-fade 500ms ease-out both; /* apertura del sito: solo al caricamento, non nei cambi pagina */
 }
 
 @utility kicker {
@@ -99,6 +101,24 @@ body {
 }
 @keyframes vt-pop {
   from { opacity: 0; scale: 0.96; }
+}
+@keyframes fade-down {
+  from { opacity: 0; translate: 0 -12px; }
+}
+@keyframes hero-zoom {
+  from { opacity: 0; scale: 1.08; }
+}
+
+/* Apertura della home: header, video e testi entrano in sequenza */
+@utility intro-header {
+  animation: fade-down 700ms var(--ease-out) 150ms both;
+}
+@utility intro-video {
+  animation: hero-zoom 1800ms var(--ease-out) both;
+}
+@utility intro-text {
+  animation: fade-up 900ms var(--ease-out) both;
+  animation-delay: var(--delay, 300ms);
 }
 
 /* Comparsa morbida per elementi che appaiono senza una transizione di React */

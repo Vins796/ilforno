@@ -24,15 +24,15 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       {/* HERO — video a tutto schermo. Mettere il file in public/video/hero.mp4 (+ hero.webm opzionale) */}
       <section className="relative -mt-16 flex min-h-[100svh] items-end overflow-hidden">
         <div className="grain absolute inset-0" />
-        <video className="absolute inset-0 h-full w-full object-cover motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster="/video/hero-poster.jpg" aria-hidden>
+        <video className="intro-video absolute inset-0 h-full w-full object-cover motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster="/video/hero-poster.jpg" aria-hidden>
           <source src="/video/hero.webm" type="video/webm" />
           <source src="/video/hero.mp4" type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/10" />
         <div className="relative mx-auto w-full max-w-6xl px-4 pb-20 pt-32 text-white sm:px-6 sm:pb-28">
-          <p className="mb-5 text-xs font-semibold uppercase tracking-[0.25em] text-white/80">{t.hero.kicker}</p>
-          <h1 className="max-w-3xl font-serif text-5xl leading-[1.05] font-medium sm:text-7xl">{t.hero.title}</h1>
-          <div className="mt-10 flex flex-wrap gap-3">
+          <p className="intro-text mb-5 text-xs font-semibold uppercase tracking-[0.25em] text-white/80 [--delay:400ms]">{t.hero.kicker}</p>
+          <h1 className="intro-text max-w-3xl font-serif [--delay:600ms] text-5xl leading-[1.05] font-medium sm:text-7xl">{t.hero.title}</h1>
+          <div className="intro-text mt-10 flex flex-wrap gap-3 [--delay:850ms]">
             <Link href={`/${lang}/shop`} className="btn bg-white text-neutral-900 hover:bg-white/90">{t.hero.cta}</Link>
             <Link href="#about" className="btn border border-white/40 text-white hover:bg-white/10">{t.hero.secondary}</Link>
           </div>
