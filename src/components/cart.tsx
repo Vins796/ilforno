@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, use, useEffect, useMemo, useState } from "react";
+import { createContext, startTransition, use, useEffect, useMemo, useState } from "react";
 import type { CartLine, Product } from "@/lib/types";
 
 type Cart = {
@@ -42,7 +42,8 @@ export function CartProvider({ products, children }: { products: Product[]; chil
 
   const value = useMemo<Cart>(() => {
     const priceOf = (id: string) => products.find((p) => p.id === id)?.price_cents ?? 0;
-    const setQty = (productId: string, quantity: number) =>
+    // In una transition: le righe del carrello entrano ed escono con un'animazione
+    const setQty = (productId: string, quantity: number) => startTransition(() =>
       setSaved((prev) => {
         const ls = prev ?? [];
         return quantity <= 0
@@ -50,7 +51,7 @@ export function CartProvider({ products, children }: { products: Product[]; chil
           : ls.some((l) => l.productId === productId)
             ? ls.map((l) => (l.productId === productId ? { ...l, quantity } : l))
             : [...ls, { productId, quantity }];
-      });
+      }));
     return {
       products, lines, open, setOpen, setQty,
       count: lines.reduce((s, l) => s + l.quantity, 0),

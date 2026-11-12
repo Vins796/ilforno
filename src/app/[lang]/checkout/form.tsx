@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { startTransition, useEffect, useState, ViewTransition } from "react";
 import { dictionaries, formatPrice, type Lang } from "@/lib/i18n";
 import { romeDay } from "@/lib/orders";
 import { useSession } from "@/lib/use-session";
@@ -24,12 +24,14 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
   if (done !== null)
     return (
       <Shell>
+        <ViewTransition enter="pop" default="none">
         <div className="rounded-3xl border border-line bg-card p-10 text-center">
           <p className="text-5xl">🥖</p>
           <h1 className="mt-4 font-serif text-4xl">{t.success}</h1>
           <p className="mt-4 text-muted">{t.successBody} <strong className="text-fg">#{done}</strong></p>
           <Link href={`/${lang}`} className="btn-primary mt-8">Il Forno</Link>
         </div>
+        </ViewTransition>
       </Shell>
     );
 
@@ -45,7 +47,8 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
       date: get("date"), time: get("time"), notes: get("notes"), lang, accessToken: session?.access_token,
     });
     setSending(false);
-    if (res.ok) { cart.clear(); setDone(res.data.number); }
+    // In una transition: il modulo sfuma e compare la conferma
+    if (res.ok) startTransition(() => { cart.clear(); setDone(res.data.number); });
     else setError(t.errors[res.error]);
   }
 
@@ -53,6 +56,8 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
 
   return (
     <Shell>
+      <ViewTransition exit="pop" default="none">
+      <div>
       <h1 className="font-serif text-5xl">{t.title}</h1>
       <p className="mt-3 text-muted">{t.pickupOnly} · {t.payOnPickup}</p>
       <div className="mt-6 rounded-2xl border border-accent/40 bg-accent/10 p-4 text-sm">{t.disclaimer}</div>
@@ -75,7 +80,7 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
             <Field label={t.time}><input name="time" type="time" required min="06:30" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
           </div>
           <Field label={t.notes}><textarea name="notes" rows={3} className="field" /></Field>
-          {error && <p role="alert" className="rounded-xl bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
+          {error && <p key={error} role="alert" className="animate-in rounded-xl bg-red-500/10 p-3 text-sm text-red-700 dark:text-red-300">{error}</p>}
           <button disabled={sending || cart.lines.length === 0} className="btn-primary w-full sm:w-auto">{sending ? t.sending : t.submit}</button>
         </form>
 
@@ -86,7 +91,7 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
               {cart.lines.map((l) => {
                 const p = cart.products.find((p) => p.id === l.productId);
                 return p && (
-                  <li key={l.productId} className="flex items-center justify-between gap-3 text-sm">
+                  <li key={l.productId} className="animate-in flex items-center justify-between gap-3 text-sm">
                     <span className="min-w-0 flex-1 truncate">{lang === "it" ? p.name_it : p.name_en}</span>
                     <Qty value={l.quantity} onChange={(q) => cart.setQty(l.productId, q)} />
                     <span className="w-16 text-right tabular-nums">{formatPrice(p.price_cents * l.quantity, lang)}</span>
@@ -100,6 +105,8 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
           </div>
         </aside>
       </div>
+      </div>
+      </ViewTransition>
     </Shell>
   );
 }
