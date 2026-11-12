@@ -11,10 +11,10 @@ import "../globals.css";
 const fraunces = Fraunces({ subsets: ["latin"], variable: "--font-fraunces", axes: ["SOFT", "opsz"] });
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-// Script bloccante in <head>: applica il tema prima del primo disegno (niente lampo chiaro)
-// e segue il sistema se l'utente non ha scelto. Gira solo nell'HTML del server: il layout
-// radice non viene mai rimontato nel browser perché il cambio lingua ricarica la pagina.
-const themeScript = `(function(){var m=matchMedia('(prefers-color-scheme: dark)');function a(){var t=null;try{t=localStorage.getItem('theme')}catch(e){}document.documentElement.classList.toggle('dark',t?t==='dark':m.matches)}a();m.addEventListener('change',a)})()`;
+// Script bloccante in <head>: applica il tema prima del primo disegno (niente lampo).
+// Tema chiaro di default; scuro solo se l'utente l'ha scelto con il pulsante. Gira solo
+// nell'HTML del server: il layout radice non viene mai rimontato nel browser.
+const themeScript = `(function(){var t=null;try{t=localStorage.getItem('theme')}catch(e){}document.documentElement.classList.toggle('dark',t==='dark')})()`;
 
 export const metadata: Metadata = {
   title: { default: "Il Forno · Panetteria a Poirino", template: "%s · Il Forno" },
