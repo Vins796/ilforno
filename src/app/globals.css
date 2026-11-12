@@ -39,6 +39,8 @@
 
 html {
   scroll-behavior: smooth;
+  /* Niente scroll-padding: le ancore (#about, #visit) portano la sezione in cima allo schermo, così
+     dietro l'header semitrasparente c'è il suo padding e non il video dell'hero */
   background: var(--bg); /* evita il lampo bianco mentre il body sfuma all'apertura */
 }
 
@@ -90,6 +92,10 @@ body {
   }
   button:not(:disabled):active, a:active {
     scale: 0.97;
+  }
+  /* Tailwind 4 toglie la manina ai pulsanti: la rimettiamo su tutto ciò che è cliccabile */
+  button:not(:disabled), [role="button"], [role="tab"], summary, select, label:has(input[type="checkbox"]), input[type="file"], input[type="date"], input[type="time"] {
+    cursor: pointer;
   }
 }
 

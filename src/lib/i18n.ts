@@ -19,9 +19,10 @@ const it = {
   categories: { title: "Cosa sforniamo", pane: "Pane", focacce: "Focacce", dolci: "Dolci", torte: "Torte", stagionali: "Stagionali" },
   reviews: { kicker: "Dicono di noi", title: "Il sorriso fa parte della ricetta" },
   visit: {
-    kicker: "Dove siamo", title: "Vieni a trovarci", address: "Via Indirizzo 1, 10046 Poirino (TO)",
-    hours: "Orari", days: [["Lun – Sab", "6:30 – 13:00 · 16:00 – 19:30"], ["Domenica", "7:00 – 12:30"]],
-    phone: "Telefono", instagram: "Seguici su Instagram",
+    kicker: "Dove siamo", title: "Vieni a trovarci",
+    // shortcut: orari di apertura provvisori; i giorni di chiusura (mercoledì pomeriggio, domenica) sono quelli veri
+    hours: "Orari", days: [["Lun · Mar · Gio · Ven · Sab", "6:30 – 13:00 · 16:00 – 19:30"], ["Mercoledì", "6:30 – 13:00"], ["Domenica", "Chiuso"]],
+    phone: "Chiama", instagram: "Instagram", facebook: "Facebook", directions: "Indicazioni stradali",
   },
   shop: {
     title: "I nostri prodotti", subtitle: "Ordina online e ritira in negozio.", all: "Tutti", add: "Aggiungi", added: "Aggiunto",
@@ -29,7 +30,7 @@ const it = {
   },
   cart: { title: "Il tuo ordine", empty: "Il carrello è vuoto.", total: "Totale", checkout: "Procedi all'ordine", remove: "Rimuovi", close: "Chiudi" },
   checkout: {
-    title: "Conferma l'ordine", pickupOnly: "Ritiro in negozio", payOnPickup: "Il pagamento avviene al ritiro.",
+    title: "Conferma l'ordine", sectionYou: "I tuoi dati", sectionPickup: "Quando passi a ritirare?", pickupOnly: "Ritiro in negozio", payOnPickup: "Il pagamento avviene al ritiro.",
     disclaimer: "Le piccole quantità si possono ordinare anche per lo stesso giorno. Torte, prodotti su ordinazione e grandi quantità vanno richiesti almeno un giorno prima.",
     name: "Nome e cognome", email: "Email", phone: "Telefono", contactHint: "Inserisci almeno email o telefono: ti avviseremo lì quando l'ordine è preso in carico e quando è pronto.",
     date: "Giorno di ritiro", time: "Orario di ritiro", notes: "Note (allergie, scritte sulla torta…)", submit: "Invia ordine", sending: "Invio…",
@@ -66,9 +67,9 @@ const en: Dict = {
   categories: { title: "What comes out of our oven", pane: "Bread", focacce: "Focaccia", dolci: "Pastries", torte: "Cakes", stagionali: "Seasonal" },
   reviews: { kicker: "Kind words", title: "A smile is part of the recipe" },
   visit: {
-    kicker: "Visit", title: "Come and see us", address: "Via Indirizzo 1, 10046 Poirino (TO), Italy",
-    hours: "Opening hours", days: [["Mon – Sat", "6:30 – 13:00 · 16:00 – 19:30"], ["Sunday", "7:00 – 12:30"]],
-    phone: "Phone", instagram: "Follow us on Instagram",
+    kicker: "Visit", title: "Come and see us",
+    hours: "Opening hours", days: [["Mon · Tue · Thu · Fri · Sat", "6:30 – 13:00 · 16:00 – 19:30"], ["Wednesday", "6:30 – 13:00"], ["Sunday", "Closed"]],
+    phone: "Call", instagram: "Instagram", facebook: "Facebook", directions: "Get directions",
   },
   shop: {
     title: "Our products", subtitle: "Order online, pick up in store.", all: "All", add: "Add", added: "Added",
@@ -76,7 +77,7 @@ const en: Dict = {
   },
   cart: { title: "Your order", empty: "Your cart is empty.", total: "Total", checkout: "Checkout", remove: "Remove", close: "Close" },
   checkout: {
-    title: "Confirm your order", pickupOnly: "In-store pickup", payOnPickup: "You pay when you pick up.",
+    title: "Confirm your order", sectionYou: "Your details", sectionPickup: "When will you pick it up?", pickupOnly: "In-store pickup", payOnPickup: "You pay when you pick up.",
     disclaimer: "Small quantities can be ordered for the same day. Cakes, made-to-order items and large quantities must be requested at least one day in advance.",
     name: "Full name", email: "Email", phone: "Phone", contactHint: "Enter at least an email or a phone number: we'll let you know there when your order is accepted and when it's ready.",
     date: "Pickup day", time: "Pickup time", notes: "Notes (allergies, cake writing…)", submit: "Place order", sending: "Sending…",
