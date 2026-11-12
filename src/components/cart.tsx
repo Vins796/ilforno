@@ -26,8 +26,8 @@ export function CartProvider({ products, children }: { products: Product[]; chil
   useEffect(() => {
     let initial: CartLine[] = [];
     try { initial = JSON.parse(localStorage.getItem(KEY) ?? "[]"); } catch {}
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- legge localStorage solo dopo l'idratazione
     // localStorage è modificabile dall'utente: teniamo solo righe valide
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- legge localStorage solo dopo l'idratazione
     setSaved(Array.isArray(initial)
       ? initial.filter((l) => typeof l?.productId === "string" && Number.isInteger(l.quantity) && l.quantity > 0)
       : []);
