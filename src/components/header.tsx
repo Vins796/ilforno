@@ -37,9 +37,10 @@ export function Header({ lang }: { lang: Lang }) {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-1">
-            <Link href={switchHref} className="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-soft" aria-label={other === "en" ? "Switch to English" : "Passa all'italiano"}>
+            {/* <a> e non <Link>: cambiare lingua cambia il layout radice; un caricamento completo riapplica il tema prima del rendering */}
+            <a href={switchHref} className="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-soft" aria-label={other === "en" ? "Switch to English" : "Passa all'italiano"}>
               {other}
-            </Link>
+            </a>
             <ThemeToggle lang={lang} />
             <Link href={`/${lang}/account`} className="hidden rounded-full p-2 hover:bg-soft sm:block" aria-label={t.nav.account}>
               <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />

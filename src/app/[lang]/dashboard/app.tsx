@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { dictionaries, formatPrice } from "@/lib/i18n";
 import { supabase, supabaseConfigured } from "@/lib/supabase";
@@ -43,7 +42,8 @@ export function DashboardApp() {
     <div className="min-h-dvh">
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
-          <Link href="/it"><Logo className="text-xl" /></Link>
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
+          <a href="/it"><Logo className="text-xl" /></a>
           <nav className="order-last flex w-full gap-1 sm:order-none sm:ml-6 sm:w-auto">
             {tabs.map(([id, label]) => (
               <button key={id} onClick={() => setTab(id)} className={`flex-1 rounded-full px-4 py-2 text-sm sm:flex-none ${tab === id ? "bg-fg text-bg" : "hover:bg-soft"}`}>{label}</button>
