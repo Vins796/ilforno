@@ -37,9 +37,10 @@ export function Header({ lang }: { lang: Lang }) {
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-1">
-            <Link href={switchHref} className="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-soft" aria-label={other === "en" ? "Switch to English" : "Passa all'italiano"}>
+            {/* <a> e non <Link>: cambiare lingua cambia il layout radice; un caricamento completo riapplica il tema prima del rendering */}
+            <a href={switchHref} className="rounded-full px-3 py-2 text-xs font-semibold uppercase tracking-wider hover:bg-soft" aria-label={other === "en" ? "Switch to English" : "Passa all'italiano"}>
               {other}
-            </Link>
+            </a>
             <ThemeToggle lang={lang} />
             <Link href={`/${lang}/account`} className="hidden rounded-full p-2 hover:bg-soft sm:block" aria-label={t.nav.account}>
               <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />
@@ -76,15 +77,19 @@ const subscribeTheme = (cb: () => void) => {
 };
 
 function ThemeToggle({ lang }: { lang: Lang }) {
+  // Serve solo per l'aria-label: l'icona visibile la sceglie il CSS (classe "dark" già impostata
+  // dallo script nel <head>), così non cambia durante l'idratazione.
   const dark = useSyncExternalStore(subscribeTheme, () => root().classList.contains("dark"), () => false);
   const t = dictionaries[lang].theme;
   const toggle = () => {
-    root().classList.toggle("dark", !dark);
-    try { localStorage.setItem("theme", dark ? "light" : "dark"); } catch {}
+    const next = !root().classList.contains("dark");
+    root().classList.toggle("dark", next);
+    try { localStorage.setItem("theme", next ? "dark" : "light"); } catch {}
   };
   return (
     <button onClick={toggle} className="rounded-full p-2 hover:bg-soft" aria-label={dark ? t.light : t.dark}>
-      <Icon d={dark ? "M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7 1.4-1.4M4.9 19.1l1.4-1.4m11.4 0 1.4 1.4M4.9 4.9l1.4 1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" : "M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"} />
+      <Icon className="hidden h-5 w-5 dark:block" d="M12 4V2m0 20v-2m8-8h2M2 12h2m13.7-5.7 1.4-1.4M4.9 19.1l1.4-1.4m11.4 0 1.4 1.4M4.9 4.9l1.4 1.4M12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z" />
+      <Icon className="block h-5 w-5 dark:hidden" d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" />
     </button>
   );
 }
