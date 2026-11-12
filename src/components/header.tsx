@@ -21,10 +21,23 @@ export function Header({ lang }: { lang: Lang }) {
   const other: Lang = lang === "it" ? "en" : "it";
   const switchHref = pathname.replace(/^\/(it|en)/, `/${other}`);
   const links = [
-    [`/${lang}/shop`, t.nav.shop],
-    [`/${lang}#about`, t.nav.about],
-    [`/${lang}#visit`, t.nav.visit],
+    ["shop", `/${lang}/shop`, t.nav.shop],
+    ["about", `/${lang}#about`, t.nav.about],
+    ["visit", `/${lang}#visit`, t.nav.visit],
   ] as const;
+
+  // Voce attiva: la pagina (Prodotti, Account, Checkout) oppure, in home, la sezione al centro dello schermo
+  const section = useActiveSection(pathname === `/${lang}`);
+  const current =
+    pathname.startsWith(`/${lang}/shop`) ? "shop"
+    : pathname.startsWith(`/${lang}/account`) ? "account"
+    : pathname.startsWith(`/${lang}/checkout`) ? "checkout"
+    : section;
+  const mobileLinks = [
+    ...links,
+    ["account", `/${lang}/account`, t.nav.account] as const,
+    ...(staff ? [["dashboard", `/${lang}/dashboard`, t.account.dashboard] as const] : []),
+  ];
 
   if (pathname.includes("/dashboard")) return null;
 
@@ -33,9 +46,14 @@ export function Header({ lang }: { lang: Lang }) {
       <header className="intro-header sticky top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link href={`/${lang}`} aria-label="Il Forno — home"><Logo /></Link>
-          <nav className="ml-6 hidden gap-6 text-sm md:flex">
-            {links.map(([href, label]) => (
-              <Link key={href} href={href} className="text-muted transition hover:text-fg">{label}</Link>
+          <nav className="ml-6 hidden gap-6 self-stretch text-sm md:flex">
+            {links.map(([key, href, label]) => (
+              <Link key={key} href={href} aria-current={current === key ? (key === "shop" ? "page" : "location") : undefined}
+                className={`relative flex items-center transition hover:text-fg ${current === key ? "text-fg" : "text-muted"}`}>
+                {label}
+                {/* Linetta sotto la voce attiva, appoggiata sul bordo dell'header */}
+                <span aria-hidden className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-accent transition-transform duration-300 ${current === key ? "scale-x-100" : "scale-x-0"}`} />
+              </Link>
             ))}
           </nav>
           <div className="ml-auto flex items-center gap-1">
@@ -50,10 +68,10 @@ export function Header({ lang }: { lang: Lang }) {
                 <Icon d="M4 5h7v7H4zM13 5h7v4h-7zM13 11h7v8h-7zM4 14h7v5H4z" />
               </Link>
             )}
-            <Link href={`/${lang}/account`} className="hidden rounded-full p-2 hover:bg-soft sm:block" aria-label={t.nav.account}>
+            <Link href={`/${lang}/account`} aria-current={current === "account" ? "page" : undefined} className={`hidden rounded-full p-2 hover:bg-soft sm:block ${current === "account" ? "bg-soft text-accent" : ""}`} aria-label={t.nav.account}>
               <Icon d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" />
             </Link>
-            <button onClick={() => cart.setOpen(true)} className="relative rounded-full p-2 hover:bg-soft" aria-label={`${t.nav.cart} (${cart.count})`}>
+            <button onClick={() => cart.setOpen(true)} className={`relative rounded-full p-2 hover:bg-soft ${current === "checkout" ? "bg-soft text-accent" : ""}`} aria-label={`${t.nav.cart} (${cart.count})`}>
               <Icon d="M5 8h14l-1.2 11a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8Zm4 0V6a3 3 0 0 1 6 0v2" />
               {cart.count > 0 && (
                 <span key={cart.count} className="animate-in absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-accent-fg">{cart.count}</span>
@@ -67,8 +85,9 @@ export function Header({ lang }: { lang: Lang }) {
         {menu && (
           <ViewTransition enter="pop" exit="pop" default="none">
             <nav className="flex flex-col gap-1 border-t border-line px-4 py-3 md:hidden">
-              {[...links, [`/${lang}/account`, t.nav.account] as const, ...(staff ? [[`/${lang}/dashboard`, t.account.dashboard] as const] : [])].map(([href, label]) => (
-                <Link key={href} href={href} onClick={() => startTransition(() => setMenu(false))} className="rounded-lg px-3 py-3 hover:bg-soft">{label}</Link>
+              {mobileLinks.map(([key, href, label]) => (
+                <Link key={key} href={href} onClick={() => startTransition(() => setMenu(false))} aria-current={current === key ? "page" : undefined}
+                  className={`rounded-lg px-3 py-3 hover:bg-soft ${current === key ? "bg-soft font-medium text-accent" : ""}`}>{label}</Link>
               ))}
             </nav>
           </ViewTransition>
@@ -77,6 +96,30 @@ export function Header({ lang }: { lang: Lang }) {
       <CartDrawer lang={lang} />
     </>
   );
+}
+
+const SECTIONS = ["about", "visit"] as const;
+
+/** In home: quale sezione del menu attraversa la linea a metà schermo (null in hero, chicche, recensioni…). */
+function useActiveSection(enabled: boolean) {
+  const [active, setActive] = useState<(typeof SECTIONS)[number] | null>(null);
+  useEffect(() => {
+    if (!enabled) return;
+    const visible = new Map<string, boolean>();
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) visible.set(e.target.id, e.isIntersecting);
+        setActive(SECTIONS.find((id) => visible.get(id)) ?? null);
+      },
+      { rootMargin: "-45% 0px -50% 0px" }, // fascia sottile al centro della finestra
+    );
+    for (const id of SECTIONS) {
+      const el = document.getElementById(id);
+      if (el) io.observe(el);
+    }
+    return () => io.disconnect();
+  }, [enabled]);
+  return enabled ? active : null;
 }
 
 const root = () => document.documentElement;
