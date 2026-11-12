@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg: #f8f3ea;
+  --fg: #2a2118;
+  --muted: #7a6a58;
+  --card: #fffdf8;
+  --line: #e6dccd;
+  --accent: #a85a24;
+  --accent-fg: #fffaf3;
+  --soft: #efe5d6;
+}
+
+.dark {
+  --bg: #15110d;
+  --fg: #f1e9dd;
+  --muted: #a8998a;
+  --card: #1e1914;
+  --line: #342b22;
+  --accent: #d98a4e;
+  --accent-fg: #1a120b;
+  --soft: #251f19;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-soft: var(--soft);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-fraunces);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+@utility kicker {
+  @apply text-xs font-semibold tracking-[0.2em] uppercase text-accent;
+}
+
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition
+    focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50;
+}
+@utility btn-primary {
+  @apply btn bg-accent text-accent-fg hover:brightness-110;
+}
+@utility btn-ghost {
+  @apply btn border border-line hover:bg-soft;
+}
+
+@utility field {
+  @apply w-full rounded-xl border border-line bg-card px-4 py-3 text-sm outline-none focus:border-accent;
+}
+
+/* Grana leggera sul placeholder del video/foto */
+.grain {
+  background:
+    radial-gradient(ellipse at 30% 20%, #d9a46b55, transparent 60%),
+    radial-gradient(ellipse at 80% 80%, #6b3d1f88, transparent 55%),
+    linear-gradient(135deg, #3a2618, #1c130c);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
