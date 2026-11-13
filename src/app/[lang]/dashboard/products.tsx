@@ -102,7 +102,7 @@ export function Products({ token }: { token: string }) {
           <button disabled={current === pages} onClick={() => setPage(current + 1)} className="btn-ghost px-4 py-2">Succ. →</button>
         </nav>
       )}
-      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={setDeleting} /></ViewTransition>}
+      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} /></ViewTransition>}
       {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDelete product={deleting} onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
     </>
   );
@@ -134,8 +134,8 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
   );
 }
 
-function Editor({ product, onClose, onSave, onDelete }: {
-  product: Partial<Product>; onClose: () => void; onSave: (p: Partial<Product>) => Promise<void>; onDelete: (p: Product) => void;
+function Editor({ product, onClose, onSave }: {
+  product: Partial<Product>; onClose: () => void; onSave: (p: Partial<Product>) => Promise<void>;
 }) {
   const [p, setP] = useState(product);
   const [busy, setBusy] = useState(false);
@@ -185,7 +185,6 @@ function Editor({ product, onClose, onSave, onDelete }: {
           <button disabled={busy} className="btn-primary">{busy ? "…" : "Salva"}</button>
           {/* Dopo una modifica il tasto dice chiaramente che le modifiche vengono scartate */}
           <button type="button" onClick={onClose} className="btn-ghost">{p === product ? "Chiudi" : "Annulla"}</button>
-          {p.id && <button type="button" onClick={() => onDelete(p as Product)} className="ml-auto text-sm text-red-600 hover:underline">Elimina</button>}
         </div>
       </form>
     </div>
