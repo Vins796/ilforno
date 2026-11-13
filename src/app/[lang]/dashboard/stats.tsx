@@ -11,33 +11,7 @@ const ranges = [7, 30, 90] as const;
 
 export function Stats() {
   const [days, setDays] = useState<(typeof ranges)[number]>(30);
-  const [loaded, setLoaded] = useState<{ orders: Order[]; now: number } | null>(null);
-
-  useEffect(() => {
-    const now = Date.now();
-    const since = new Date(now - days * 864e5).toISOString();
-    supabase().from("orders").select("*, order_items(*)").neq("status", "cancelled").gte("created_at", since).limit(5000)
-      .then(({ data }) => setLoaded({ orders: (data as Order[]) ?? [], now }));
-  }, [days]);
-
-  const s = useMemo(() => {
-    if (!loaded) return null;
-    const { orders, now } = loaded;
-    const byDay = new Map<string, { revenue: number; count: number }>();
-    for (let i = days - 1; i >= 0; i--) byDay.set(romeDay(new Date(now - i * 864e5)), { revenue: 0, count: 0 });
-    const byProduct = new Map<string, number>();
-    for (const o of orders) {
-      const d = byDay.get(romeDay(new Date(o.created_at)));
-      if (d) { d.revenue += o.total_cents / 100; d.count++; }
-      for (const i of o.order_items ?? []) byProduct.set(i.name, (byProduct.get(i.name) ?? 0) + i.quantity);
-    }
-    const revenue = orders.reduce((x, o) => x + o.total_cents, 0);
-    return {
-      revenue, count: orders.length, avg: orders.length ? revenue / orders.length : 0,
-      daily: [...byDay].map(([day, v]) => ({ day: day.slice(5).split("-").reverse().join("/"), ...v })),
-      top: [...byProduct].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, qty]) => ({ name, qty })),
-    };
-  }, [loaded, days]);
+  const s = useStats(days);
 
   return (
     <div className="space-y-6">
@@ -84,11 +58,42 @@ export function Stats() {
   );
 }
 
-const tooltipStyle = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 12, color: "var(--fg)" };
+/** Incasso, ordini e prodotti più venduti degli ultimi `days` giorni (esclusi gli annullati). Usato anche dalla Panoramica. */
+export function useStats(days: number) {
+  const [loaded, setLoaded] = useState<{ orders: Order[]; now: number } | null>(null);
 
-const Tile = ({ label, value }: { label: string; value: string }) => (
+  useEffect(() => {
+    const now = Date.now();
+    const since = new Date(now - days * 864e5).toISOString();
+    supabase().from("orders").select("*, order_items(*)").neq("status", "cancelled").gte("created_at", since).limit(5000)
+      .then(({ data }) => setLoaded({ orders: (data as Order[]) ?? [], now }));
+  }, [days]);
+
+  return useMemo(() => {
+    if (!loaded) return null;
+    const { orders, now } = loaded;
+    const byDay = new Map<string, { revenue: number; count: number }>();
+    for (let i = days - 1; i >= 0; i--) byDay.set(romeDay(new Date(now - i * 864e5)), { revenue: 0, count: 0 });
+    const byProduct = new Map<string, number>();
+    for (const o of orders) {
+      const d = byDay.get(romeDay(new Date(o.created_at)));
+      if (d) { d.revenue += o.total_cents / 100; d.count++; }
+      for (const i of o.order_items ?? []) byProduct.set(i.name, (byProduct.get(i.name) ?? 0) + i.quantity);
+    }
+    const revenue = orders.reduce((x, o) => x + o.total_cents, 0);
+    return {
+      revenue, count: orders.length, avg: orders.length ? revenue / orders.length : 0,
+      daily: [...byDay].map(([day, v]) => ({ day: day.slice(5).split("-").reverse().join("/"), ...v })),
+      top: [...byProduct].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, qty]) => ({ name, qty })),
+    };
+  }, [loaded, days]);
+}
+
+export const tooltipStyle = { background: "var(--card)", border: "1px solid var(--line)", borderRadius: 12, color: "var(--fg)" };
+
+export const Tile = ({ label, value }: { label: string; value: string }) => (
   <div className="rounded-3xl border border-line bg-card p-5"><p className="text-sm text-muted">{label}</p><p className="mt-1 font-serif text-4xl">{value}</p></div>
 );
-const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (
+export const Panel = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="rounded-3xl border border-line bg-card p-5"><h2 className="mb-4 font-medium">{title}</h2>{children}</section>
 );

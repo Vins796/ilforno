@@ -129,7 +129,7 @@ const subscribeTheme = (cb: () => void) => {
   return () => o.disconnect();
 };
 
-function ThemeToggle({ lang }: { lang: Lang }) {
+export function ThemeToggle({ lang }: { lang: Lang }) {
   // Serve solo per l'aria-label: l'icona visibile la sceglie il CSS (classe "dark" già impostata
   // dallo script nel <head>), così non cambia durante l'idratazione.
   const dark = useSyncExternalStore(subscribeTheme, () => root().classList.contains("dark"), () => false);
