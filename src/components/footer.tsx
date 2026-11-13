@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { dictionaries, type Lang } from "@/lib/i18n";
 import { Logo } from "./header";
 import { indirizzo, negozio } from "@/lib/negozio";
@@ -13,7 +14,10 @@ export function Footer({ lang }: { lang: Lang }) {
           <p><a href={`tel:${negozio.telefono}`} className="hover:text-fg">{negozio.telefonoVisibile}</a></p>
           <p>{t.footer.made}</p>
         </div>
-        <p>© {/* anno fisso: evita Date() nel prerender */}2026 {negozio.nome} · {negozio.citta}. {t.footer.rights}</p>
+        <div className="space-y-2 sm:text-right">
+          <p><Link href={`/${lang}/privacy`} className="underline-offset-4 hover:text-fg hover:underline">{t.footer.privacy}</Link></p>
+          <p>© {/* anno fisso: evita Date() nel prerender */}2026 {negozio.nome} · {negozio.citta}. {t.footer.rights}</p>
+        </div>
       </div>
     </footer>
   );
