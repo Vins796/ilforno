@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase";
 import { categories, type Product } from "@/lib/types";
 import { ProductImage } from "@/components/product-card";
 import { Icon } from "@/components/header";
+import { toast } from "@/components/toast";
 import { Field } from "../checkout/form";
 import { refreshCatalog } from "../../actions";
 
@@ -35,19 +36,22 @@ export function Products({ token }: { token: string }) {
    
   useEffect(() => { load(); }, [load]);
 
-  async function save(p: Partial<Product>) {
+  /** true se salvato: in caso di errore la finestra di modifica resta aperta e non si perde nulla */
+  async function save(p: Partial<Product>, done: string) {
     const { id, ...fields } = p;
     const { error } = id ? await supabase().from("products").update(fields).eq("id", id) : await supabase().from("products").insert(fields);
-    if (error) return alert(`Errore: ${error.message}`);
+    if (error) { toast(`Salvataggio non riuscito: ${error.message}`, true); return false; }
     await Promise.all([load(), refreshCatalog(token)]);
+    toast(done);
+    return true;
   }
 
   async function remove(p: Product) {
     const { error } = await supabase().from("products").delete().eq("id", p.id);
-    if (error) return alert(`Errore: ${error.message}`);
+    if (error) return toast(`Eliminazione non riuscita: ${error.message}`, true);
     setDeleting(null);
-    setEditing(null);
     await Promise.all([load(), refreshCatalog(token)]);
+    toast(`"${p.name_it}" eliminato`);
   }
 
   const q = query.trim().toLowerCase();
@@ -81,8 +85,8 @@ export function Products({ token }: { token: string }) {
               <p className="text-sm text-muted">{cat[p.category]} · {formatPrice(p.price_cents, "it")} / {p.unit_it}</p>
             </button>
             <div className="flex flex-wrap gap-2">
-              <Toggle on={p.available} label={p.available ? "Disponibile" : "Esaurito"} onClick={() => save({ id: p.id, available: !p.available })} />
-              <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special })} />
+              <Toggle on={p.available} label={p.available ? "Disponibile" : "Esaurito"} onClick={() => save({ id: p.id, available: !p.available }, `"${p.name_it}" ${p.available ? "segnato come esaurito" : "di nuovo disponibile"}`)} />
+              <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special }, `"${p.name_it}" ${p.weekly_special ? "tolto dalle" : "aggiunto alle"} chicche della settimana`)} />
             </div>
             <div className="flex gap-2">
               <button onClick={() => setEditing(p)} aria-label={`Modifica ${p.name_it}`} title="Modifica" className="rounded-full p-2 text-muted hover:bg-soft hover:text-fg">
@@ -102,7 +106,7 @@ export function Products({ token }: { token: string }) {
           <button disabled={current === pages} onClick={() => setPage(current + 1)} className="btn-ghost px-4 py-2">Succ. →</button>
         </nav>
       )}
-      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} /></ViewTransition>}
+      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { if (await save(p, p.id ? `"${p.name_it}" salvato` : `"${p.name_it}" aggiunto al catalogo`)) setEditing(null); }} /></ViewTransition>}
       {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDelete product={deleting} onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
     </>
   );
@@ -146,8 +150,9 @@ function Editor({ product, onClose, onSave }: {
     const path = `${crypto.randomUUID()}.${file.name.split(".").pop()}`;
     const { error } = await supabase().storage.from("products").upload(path, file, { contentType: file.type });
     setBusy(false);
-    if (error) return alert(`Errore caricamento: ${error.message}`);
+    if (error) return toast(`Foto non caricata: ${error.message}`, true);
     set("image_url", supabase().storage.from("products").getPublicUrl(path).data.publicUrl);
+    toast("Foto caricata: premi Salva per confermarla");
   }
 
   return (

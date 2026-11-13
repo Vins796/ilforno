@@ -8,6 +8,7 @@ import { TZ } from "@/lib/orders";
 import type { Order, OrderStatus } from "@/lib/types";
 import { AuthForm } from "@/components/auth-form";
 import { Logo } from "@/components/header";
+import { toast, Toaster } from "@/components/toast";
 import { updateOrderStatus } from "../../actions";
 import { Products } from "./products";
 import { Stats } from "./stats";
@@ -40,6 +41,7 @@ export function DashboardApp() {
   const token = session.access_token;
   return (
     <div className="min-h-dvh">
+      <Toaster />
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
@@ -111,8 +113,9 @@ function Orders({ token }: { token: string }) {
     try {
       await updateOrderStatus(token, o.id, status);
       await load();
+      toast(`Ordine #${o.number}: ${st[status].toLowerCase()}`);
     } catch (e) {
-      alert(`Errore: ${(e as Error).message}`);
+      toast(`Ordine #${o.number} non aggiornato: ${(e as Error).message}`, true);
     } finally {
       setBusy(null);
     }
