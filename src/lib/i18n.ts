@@ -46,6 +46,11 @@ const it = {
     dashboard: "Apri la dashboard", dashboardHint: "Gestisci ordini, prodotti e andamento del negozio.",
   },
   status: { received: "Ricevuto", preparing: "In preparazione", ready: "Pronto", picked_up: "Ritirato", cancelled: "Annullato" },
+  cookies: {
+    title: "Cookie", accept: "Accetta", reject: "Rifiuta", more: "Leggi l'informativa", settings: "Preferenze cookie",
+    body: "Usiamo solo cookie tecnici, necessari al sito. La mappa di Google Maps però può impostare cookie di Google: la carichiamo solo se accetti.",
+    showMap: "Mostra la mappa", mapNote: "La mappa è di Google Maps, che può impostare dei cookie. Premendo il tasto accetti i cookie di Google Maps.",
+  },
   footer: { privacy: "Privacy", rights: "Tutti i diritti riservati.", made: "Fatto con lievito madre e pazienza." },
   theme: { light: "Tema chiaro", dark: "Tema scuro" },
 };
@@ -95,6 +100,11 @@ const en: Dict = {
     dashboard: "Open the dashboard", dashboardHint: "Manage orders, products and shop performance.",
   },
   status: { received: "Received", preparing: "Being prepared", ready: "Ready", picked_up: "Picked up", cancelled: "Cancelled" },
+  cookies: {
+    title: "Cookies", accept: "Accept", reject: "Reject", more: "Read the policy", settings: "Cookie preferences",
+    body: "We only use technical cookies the website needs. The Google Maps map, however, may set Google cookies: we only load it if you accept.",
+    showMap: "Show the map", mapNote: "The map is provided by Google Maps, which may set cookies. Pressing the button accepts Google Maps cookies.",
+  },
   footer: { privacy: "Privacy", rights: "All rights reserved.", made: "Made with sourdough and patience." },
   theme: { light: "Light theme", dark: "Dark theme" },
 };

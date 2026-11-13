@@ -6,6 +6,7 @@ import { getProducts } from "@/lib/data";
 import { CartProvider } from "@/components/cart";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
+import { ConsentBanner } from "@/components/consent";
 import { jsonLd } from "@/lib/negozio";
 import "../globals.css";
 
@@ -42,6 +43,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
           <Header lang={lang} />
           <main className="flex-1">{children}</main>
           <Footer lang={lang} />
+          <ConsentBanner lang={lang} />
         </CartProvider>
       </body>
     </html>

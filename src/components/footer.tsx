@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { dictionaries, type Lang } from "@/lib/i18n";
 import { Logo } from "./header";
+import { ConsentSettingsButton } from "./consent";
 import { indirizzo, negozio } from "@/lib/negozio";
 
 export function Footer({ lang }: { lang: Lang }) {
@@ -15,7 +16,10 @@ export function Footer({ lang }: { lang: Lang }) {
           <p>{t.footer.made}</p>
         </div>
         <div className="space-y-2 sm:text-right">
-          <p><Link href={`/${lang}/privacy`} className="underline-offset-4 hover:text-fg hover:underline">{t.footer.privacy}</Link></p>
+          <p className="flex gap-4 sm:justify-end">
+            <Link href={`/${lang}/privacy`} className="underline-offset-4 hover:text-fg hover:underline">{t.footer.privacy}</Link>
+            <ConsentSettingsButton label={t.cookies.settings} />
+          </p>
           <p>© {/* anno fisso: evita Date() nel prerender */}2026 {negozio.nome} · {negozio.citta}. {t.footer.rights}</p>
         </div>
       </div>
