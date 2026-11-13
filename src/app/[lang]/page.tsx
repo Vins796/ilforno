@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { dictionaries, type Lang } from "@/lib/i18n";
 import { getProducts } from "@/lib/data";
@@ -41,7 +42,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
 
       {/* CHI SIAMO */}
       <section id="about" className="reveal mx-auto grid max-w-6xl items-center gap-12 px-4 py-24 sm:px-6 md:grid-cols-2 md:py-32">
-        <div className="grain aspect-[4/5] rounded-[2rem]" role="img" aria-label="Marco e Anna" />
+        <Image src="/marco-anna.jpg" alt={lang === "it" ? "Marco e Anna dietro il bancone de Il Forno" : "Marco and Anna behind the counter at Il Forno"} width={853} height={1280} sizes="(min-width: 768px) 36rem, 100vw" className="aspect-[4/5] w-full rounded-[2rem] object-cover object-top" />
         <div>
           <p className="kicker">{t.about.kicker}</p>
           <h2 className="mt-3 font-serif text-4xl sm:text-5xl">{t.about.title}</h2>

@@ -9,7 +9,7 @@ const it = {
     kicker: "Chi siamo",
     title: "Marco & Anna",
     body: [
-      "Il Forno è la panetteria storica di via Cavour, quella “dell'angolo”. Marco ha imparato il mestiere proprio qui, impastando per anni accanto a chi c'era prima di noi. Tre anni fa abbiamo deciso di rilevarla e portare avanti la sua tradizione.",
+      "Il Forno è la panetteria storica di via Cavour, quella “dell'angolo”. Marco ha imparato il mestiere proprio qui, impastando per anni accanto a chi c'era prima di noi. Nel 2022 abbiamo deciso di rilevarla e portare avanti la sua tradizione.",
       "Marco impasta e sforna di notte, quando il paese dorme, e all'alba quando si sveglia. Anna è la mente (e le mani) dietro ai dolci: inventa, organizza e, quando serve, ti accoglie al banco con il sorriso. Con noi ci sono Michela e Irene al banco e Federico in laboratorio.",
       "Scegliamo grani di qualità, come il grano antico di Cerere Madre Terra, coltivato qui a Poirino, e seguiamo le ricette della tradizione piemontese. Ma la cosa a cui teniamo di più è semplice: che chi entra si senta accolto, come a casa.",
     ],
@@ -69,7 +69,7 @@ const en: Dict = {
     kicker: "About us",
     title: "Marco & Anna",
     body: [
-      "Il Forno is the historic bakery on Via Cavour, the one “on the corner”. Marco learned the trade right here, kneading for years alongside those who came before us. Three years ago we decided to take it over and carry its tradition forward.",
+      "Il Forno is the historic bakery on Via Cavour, the one “on the corner”. Marco learned the trade right here, kneading for years alongside those who came before us. In 2022 we decided to take it over and carry its tradition forward.",
       "Marco kneads and bakes at night, while the town sleeps, and at dawn as it wakes up. Anna is the mind (and the hands) behind the cakes and pastries: she invents, organises and, when needed, welcomes you at the counter with a smile. With us are Michela and Irene at the counter and Federico in the bakehouse.",
       "We choose quality grains, like the ancient wheat from Cerere Madre Terra, grown right here in Poirino, and we follow traditional Piedmontese recipes. But what matters most to us is simple: that everyone who walks in feels welcome, as if at home.",
     ],
