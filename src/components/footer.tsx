@@ -7,7 +7,7 @@ import { indirizzo, negozio } from "@/lib/negozio";
 export function Footer({ lang }: { lang: Lang }) {
   const t = dictionaries[lang];
   return (
-    <footer className="border-t border-line">
+    <footer className="bg-soft">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted sm:flex-row sm:items-end sm:justify-between sm:px-6">
         <div className="space-y-2">
           <Logo size={88} />
