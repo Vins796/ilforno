@@ -23,6 +23,8 @@ export function Products({ token }: { token: string }) {
   const [filter, setFilter] = useState<Product["category"] | "tutte">("tutte");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [deleting, setDeletingNow] = useState<Product | null>(null);
+  const setDeleting = (p: Product | null) => startTransition(() => setDeletingNow(p));
   // Apertura e chiusura della finestra di modifica con dissolvenza
   const setEditing = (p: Partial<Product> | null) => startTransition(() => setEditingNow(p));
 
@@ -41,9 +43,9 @@ export function Products({ token }: { token: string }) {
   }
 
   async function remove(p: Product) {
-    if (!confirm(`Eliminare "${p.name_it}"? Gli ordini passati restano.`)) return;
     const { error } = await supabase().from("products").delete().eq("id", p.id);
     if (error) return alert(`Errore: ${error.message}`);
+    setDeleting(null);
     setEditing(null);
     await Promise.all([load(), refreshCatalog(token)]);
   }
@@ -86,7 +88,7 @@ export function Products({ token }: { token: string }) {
               <button onClick={() => setEditing(p)} aria-label={`Modifica ${p.name_it}`} title="Modifica" className="rounded-full p-2 text-muted hover:bg-soft hover:text-fg">
                 <Icon className="h-4 w-4" d="M4 20h4L19 9l-4-4L4 16v4Zm9-13 4 4" />
               </button>
-              <button onClick={() => remove(p)} aria-label={`Elimina ${p.name_it}`} title="Elimina" className="rounded-full p-2 text-red-600 hover:bg-red-500/10 dark:text-red-400">
+              <button onClick={() => setDeleting(p)} aria-label={`Elimina ${p.name_it}`} title="Elimina" className="rounded-full p-2 text-red-600 hover:bg-red-500/10 dark:text-red-400">
                 <Icon className="h-4 w-4" d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
               </button>
             </div>
@@ -100,8 +102,27 @@ export function Products({ token }: { token: string }) {
           <button disabled={current === pages} onClick={() => setPage(current + 1)} className="btn-ghost px-4 py-2">Succ. →</button>
         </nav>
       )}
-      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={remove} /></ViewTransition>}
+      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={setDeleting} /></ViewTransition>}
+      {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDelete product={deleting} onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
     </>
+  );
+}
+
+function ConfirmDelete({ product, onCancel, onConfirm }: { product: Product; onCancel: () => void; onConfirm: () => Promise<void> }) {
+  const [busy, setBusy] = useState(false);
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onCancel}>
+      <div role="alertdialog" aria-modal="true" aria-labelledby="elimina-titolo" onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.key === "Escape" && onCancel()} className="w-full max-w-md rounded-3xl bg-card p-6">
+        <h2 id="elimina-titolo" className="font-serif text-2xl">Eliminare &ldquo;{product.name_it}&rdquo;?</h2>
+        <p className="mt-3 text-sm leading-relaxed text-muted">Il prodotto sparisce dal sito e non si può recuperare. Gli ordini già ricevuti restano.</p>
+        <div className="mt-6 flex justify-end gap-3">
+          <button autoFocus onClick={onCancel} className="btn-ghost">Annulla</button>
+          <button disabled={busy} onClick={async () => { setBusy(true); await onConfirm(); setBusy(false); }}
+            className="btn bg-red-600 text-white hover:bg-red-700">{busy ? "…" : "Elimina"}</button>
+        </div>
+      </div>
+    </div>
   );
 }
 
