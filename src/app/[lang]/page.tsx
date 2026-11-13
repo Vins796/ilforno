@@ -98,7 +98,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
       </section>
 
       {/* RECENSIONI */}
-      <section className="reveal border-y border-line py-24">
+      <section className="reveal bg-soft py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <p className="kicker">{t.reviews.kicker}</p>
           <h2 className="mt-3 font-serif text-4xl sm:text-5xl">{t.reviews.title}</h2>
