@@ -5,6 +5,7 @@ import { dictionaries, formatPrice } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { categories, type Product } from "@/lib/types";
 import { ProductImage } from "@/components/product-card";
+import { Icon } from "@/components/header";
 import { Field } from "../checkout/form";
 import { refreshCatalog } from "../../actions";
 
@@ -56,8 +57,7 @@ export function Products({ token }: { token: string }) {
 
   return (
     <>
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">Le modifiche compaiono subito sul sito.</p>
+      <div className="mb-5 flex justify-end">
         <button onClick={() => setEditing({ ...empty, sort: products.length + 1 })} className="btn-primary">+ Nuovo prodotto</button>
       </div>
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -83,8 +83,12 @@ export function Products({ token }: { token: string }) {
               <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special })} />
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setEditing(p)} className="rounded-full border border-line px-3 py-1.5 text-xs hover:bg-soft">Modifica</button>
-              <button onClick={() => remove(p)} className="rounded-full border border-red-500/40 px-3 py-1.5 text-xs text-red-600 hover:bg-red-500/10 dark:text-red-400">Elimina</button>
+              <button onClick={() => setEditing(p)} aria-label={`Modifica ${p.name_it}`} title="Modifica" className="rounded-full p-2 text-muted hover:bg-soft hover:text-fg">
+                <Icon className="h-4 w-4" d="M4 20h4L19 9l-4-4L4 16v4Zm9-13 4 4" />
+              </button>
+              <button onClick={() => remove(p)} aria-label={`Elimina ${p.name_it}`} title="Elimina" className="rounded-full p-2 text-red-600 hover:bg-red-500/10 dark:text-red-400">
+                <Icon className="h-4 w-4" d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+              </button>
             </div>
           </li>
         ))}
