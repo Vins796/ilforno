@@ -9,6 +9,8 @@ import { Field } from "../checkout/form";
 import { refreshCatalog } from "../../actions";
 
 const cat = dictionaries.it.categories;
+// shortcut: filtri e pagine calcolati nel browser sull'elenco completo, va bene fino a qualche centinaio di prodotti
+const PER_PAGE = 10;
 const empty: Omit<Product, "id"> = {
   name_it: "", name_en: "", description_it: "", description_en: "", category: "pane", price_cents: 0,
   unit_it: "pz", unit_en: "pc", image_url: null, available: true, weekly_special: false, requires_advance: false, sort: 0,
@@ -17,6 +19,9 @@ const empty: Omit<Product, "id"> = {
 export function Products({ token }: { token: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditingNow] = useState<Partial<Product> | null>(null);
+  const [filter, setFilter] = useState<Product["category"] | "tutte">("tutte");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
   // Apertura e chiusura della finestra di modifica con dissolvenza
   const setEditing = (p: Partial<Product> | null) => startTransition(() => setEditingNow(p));
 
@@ -42,14 +47,31 @@ export function Products({ token }: { token: string }) {
     await Promise.all([load(), refreshCatalog(token)]);
   }
 
+  const q = query.trim().toLowerCase();
+  const filtered = products.filter((p) =>
+    (filter === "tutte" || p.category === filter) && (!q || `${p.name_it} ${p.name_en}`.toLowerCase().includes(q)));
+  const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const current = Math.min(page, pages);
+  const visible = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
+
   return (
     <>
       <div className="mb-5 flex items-center justify-between gap-3">
         <p className="text-sm text-muted">Le modifiche compaiono subito sul sito.</p>
         <button onClick={() => setEditing({ ...empty, sort: products.length + 1 })} className="btn-primary">+ Nuovo prodotto</button>
       </div>
-      <ul className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card">
-        {products.map((p) => (
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          placeholder="Cerca per nome…" aria-label="Cerca prodotto per nome" className="field sm:max-w-xs" />
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filtra per categoria">
+          {(["tutte", ...categories] as const).map((c) => (
+            <Toggle key={c} on={filter === c} label={c === "tutte" ? "Tutte" : cat[c]} onClick={() => { setFilter(c); setPage(1); }} />
+          ))}
+        </div>
+      </div>
+      {visible.length === 0 && <p className="rounded-3xl border border-line bg-card p-8 text-center text-muted">Nessun prodotto trovato.</p>}
+      <ul className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card empty:hidden">
+        {visible.map((p) => (
           <li key={p.id} className="flex flex-wrap items-center gap-4 p-4">
             <ProductImage product={p} className="h-14 w-14 shrink-0 rounded-xl" />
             <button onClick={() => setEditing(p)} className="min-w-40 flex-1 text-left">
@@ -60,9 +82,20 @@ export function Products({ token }: { token: string }) {
               <Toggle on={p.available} label={p.available ? "Disponibile" : "Esaurito"} onClick={() => save({ id: p.id, available: !p.available })} />
               <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special })} />
             </div>
+            <div className="flex gap-2">
+              <button onClick={() => setEditing(p)} className="rounded-full border border-line px-3 py-1.5 text-xs hover:bg-soft">Modifica</button>
+              <button onClick={() => remove(p)} className="rounded-full border border-red-500/40 px-3 py-1.5 text-xs text-red-600 hover:bg-red-500/10 dark:text-red-400">Elimina</button>
+            </div>
           </li>
         ))}
       </ul>
+      {pages > 1 && (
+        <nav className="mt-5 flex items-center justify-center gap-3 text-sm" aria-label="Pagine">
+          <button disabled={current === 1} onClick={() => setPage(current - 1)} className="btn-ghost px-4 py-2">← Prec.</button>
+          <span className="tabular-nums text-muted">Pagina {current} di {pages} · {filtered.length} prodotti</span>
+          <button disabled={current === pages} onClick={() => setPage(current + 1)} className="btn-ghost px-4 py-2">Succ. →</button>
+        </nav>
+      )}
       {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={remove} /></ViewTransition>}
     </>
   );
@@ -111,7 +144,7 @@ function Editor({ product, onClose, onSave, onDelete }: {
             </select>
           </Field>
           <Field label="Prezzo (€)">
-            <input required type="number" min={0} step="0.01" value={(p.price_cents ?? 0) / 100} onChange={(e) => set("price_cents", Math.round(Number(e.target.value) * 100))} className="field" />
+            <input required type="number" min={0} step="0.01" defaultValue={(p.price_cents ?? 0) / 100} onChange={(e) => set("price_cents", Math.round(Number(e.target.value) * 100))} className="field" />
           </Field>
           <Field label="Unità (it), es. kg, pz, etto"><input required value={p.unit_it} onChange={(e) => set("unit_it", e.target.value)} className="field" /></Field>
           <Field label="Unità (en)"><input required value={p.unit_en} onChange={(e) => set("unit_en", e.target.value)} className="field" /></Field>
