@@ -47,7 +47,7 @@ export function DashboardApp() {
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 sm:h-16 sm:flex-nowrap sm:px-6">
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
-          <a href="/it" className="py-3 sm:py-0"><Logo size={40} /></a>
+          <a href="/it" className="py-3 sm:py-0"><Logo size={48} /></a>
           {/* Come il menu del sito: voce attiva con la linetta colorata appoggiata sul bordo dell'header */}
           <nav className="order-last flex w-full gap-5 self-stretch text-sm sm:order-none sm:ml-6 sm:w-auto sm:gap-6">
             {tabs.map(([id, label]) => (

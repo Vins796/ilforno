@@ -9,7 +9,7 @@ import { useCart } from "./cart";
 import { useIsStaff } from "@/lib/use-session";
 
 /** Logo tondo (contiene già il nome). Il file (public/logo.jpg) è piccolo, 150×150: va bene fino a ~70px. */
-export function Logo({ size = 44 }: { size?: number }) {
+export function Logo({ size = 56 }: { size?: number }) {
   return <Image src="/logo.jpg" alt="Il Forno" width={size} height={size} priority className="shrink-0 rounded-full bg-white ring-1 ring-line" />;
 }
 
