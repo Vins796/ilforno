@@ -7,21 +7,22 @@ import { useSession } from "@/lib/use-session";
 import { TZ } from "@/lib/orders";
 import type { Order, OrderStatus } from "@/lib/types";
 import { AuthForm } from "@/components/auth-form";
-import { Logo } from "@/components/header";
+import { Icon, Logo, ThemeToggle } from "@/components/header";
 import { toast, Toaster } from "@/components/toast";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { updateOrderStatus } from "../../actions";
 import { Products } from "./products";
 import { Stats } from "./stats";
+import { Overview } from "./overview";
 
 const st = dictionaries.it.status;
-const tabs = [["orders", "Ordini"], ["products", "Prodotti"], ["stats", "Andamento"]] as const;
-type Tab = (typeof tabs)[number][0];
+const tabs = [["home", "Panoramica"], ["orders", "Ordini"], ["products", "Prodotti"], ["stats", "Andamento"]] as const;
+export type Tab = (typeof tabs)[number][0];
 
 export function DashboardApp() {
   const session = useSession();
   const [staff, setStaff] = useState<boolean | null>(null);
-  const [tab, setTab] = useState<Tab>("orders");
+  const [tab, setTab] = useState<Tab>("home");
 
   useEffect(() => {
     if (!session) return;
@@ -44,20 +45,31 @@ export function DashboardApp() {
     <div className="min-h-dvh">
       <Toaster />
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-3 px-4 sm:h-16 sm:flex-nowrap sm:px-6">
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
-          <a href="/it"><Logo className="text-xl" /></a>
-          <nav className="order-last flex w-full gap-1 sm:order-none sm:ml-6 sm:w-auto">
+          <a href="/it" className="py-3 sm:py-0"><Logo className="text-xl" /></a>
+          {/* Come il menu del sito: voce attiva con la linetta colorata appoggiata sul bordo dell'header */}
+          <nav className="order-last -mx-1 flex w-full gap-5 self-stretch overflow-x-auto px-1 text-sm sm:order-none sm:ml-6 sm:w-auto sm:gap-6">
             {tabs.map(([id, label]) => (
-              <button key={id} onClick={() => startTransition(() => setTab(id))} className={`flex-1 rounded-full px-4 py-2 text-sm sm:flex-none ${tab === id ? "bg-fg text-bg" : "hover:bg-soft"}`}>{label}</button>
+              <button key={id} onClick={() => startTransition(() => setTab(id))} aria-current={tab === id ? "page" : undefined}
+                className={`relative flex shrink-0 items-center py-3 hover:text-fg sm:py-0 ${tab === id ? "text-fg" : "text-muted"}`}>
+                {label}
+                <span aria-hidden className={`absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-accent transition-transform duration-300 ${tab === id ? "scale-x-100" : "scale-x-0"}`} />
+              </button>
             ))}
           </nav>
-          <button onClick={() => supabase().auth.signOut()} className="ml-auto text-sm text-muted hover:text-fg">Esci</button>
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle lang="it" />
+            <button onClick={() => supabase().auth.signOut()} className="rounded-full p-2 text-muted hover:bg-soft hover:text-fg" aria-label="Esci dall'account" title="Esci">
+              <Icon d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h10" />
+            </button>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         <ViewTransition key={tab} enter="pop" exit="pop" default="none">
           <div>
+            {tab === "home" && <Overview go={(t) => startTransition(() => setTab(t))} />}
             {tab === "orders" && <Orders token={token} />}
             {tab === "products" && <Products token={token} />}
             {tab === "stats" && <Stats />}
@@ -77,10 +89,9 @@ const next: Partial<Record<OrderStatus, [OrderStatus, string]>> = {
 };
 const columns: OrderStatus[] = ["received", "preparing", "ready"];
 
-function Orders({ token }: { token: string }) {
+/** Ordini attivi e degli ultimi 2 giorni, aggiornati in tempo reale (con suono per i nuovi). Usato da Panoramica e Ordini. */
+export function useLiveOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [busy, setBusy] = useState<string | null>(null);
-  const [cancelling, setCancelling] = useState<Order | null>(null);
   const [live, setLive] = useState(false);
   const known = useRef<Set<string> | null>(null);
 
@@ -101,13 +112,28 @@ function Orders({ token }: { token: string }) {
     if ("Notification" in window && Notification.permission === "default") Notification.requestPermission();
     let timer: ReturnType<typeof setTimeout>;
     // Ricarica a ogni cambiamento; il ritardo lascia al server il tempo di salvare anche le righe dell'ordine
-    const channel = supabase().channel("orders")
+    const channel = supabase().channel(`orders-${crypto.randomUUID()}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "orders" }, () => { clearTimeout(timer); timer = setTimeout(load, 700); })
       .subscribe((s) => setLive(s === "SUBSCRIBED"));
     const onFocus = () => load(); // es. tablet uscito dallo standby
     window.addEventListener("focus", onFocus);
     return () => { clearTimeout(timer); supabase().removeChannel(channel); window.removeEventListener("focus", onFocus); };
   }, [load]);
+
+  return { orders, live, load };
+}
+
+export const LiveBadge = ({ live }: { live: boolean }) => (
+  <span className="flex items-center gap-2 text-sm text-muted">
+    <span className={`h-2.5 w-2.5 rounded-full ${live ? "bg-green-500" : "bg-neutral-400"}`} />
+    {live ? "In tempo reale" : "Connessione…"}
+  </span>
+);
+
+function Orders({ token }: { token: string }) {
+  const { orders, live, load } = useLiveOrders();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<Order | null>(null);
 
   async function move(o: Order, status: OrderStatus) {
     setBusy(o.id);
@@ -126,10 +152,7 @@ function Orders({ token }: { token: string }) {
 
   return (
     <>
-      <div className="mb-5 flex items-center gap-2 text-sm text-muted">
-        <span className={`h-2.5 w-2.5 rounded-full ${live ? "bg-green-500" : "bg-neutral-400"}`} />
-        {live ? "In tempo reale" : "Connessione…"}
-      </div>
+      <div className="mb-5"><LiveBadge live={live} /></div>
       <div className="grid gap-5 lg:grid-cols-3">
         {columns.map((c) => {
           const list = orders.filter((o) => o.status === c);
@@ -200,7 +223,7 @@ function OrderCard({ o, busy, onMove }: { o: Order; busy: boolean; onMove: (s: O
   );
 }
 
-const fmtWhen = (iso: string) => {
+export const fmtWhen = (iso: string) => {
   const d = new Date(iso);
   const sameDay = (a: Date, b: Date) => a.toLocaleDateString("it-IT", { timeZone: TZ }) === b.toLocaleDateString("it-IT", { timeZone: TZ });
   const time = d.toLocaleTimeString("it-IT", { timeZone: TZ, hour: "2-digit", minute: "2-digit" });
