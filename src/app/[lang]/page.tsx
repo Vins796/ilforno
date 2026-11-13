@@ -22,7 +22,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
   return (
     <>
       {/* HERO — video a tutto schermo. Mettere il file in public/video/hero.mp4 (+ hero.webm opzionale) */}
-      <section className="relative -mt-16 flex min-h-[100svh] items-end overflow-hidden">
+      <section className="relative -mt-20 flex min-h-[100svh] items-end overflow-hidden">
         <div className="grain absolute inset-0" />
         <video className="intro-video absolute inset-0 h-full w-full object-cover motion-reduce:hidden" autoPlay muted loop playsInline preload="metadata" poster="/video/hero-poster.jpg" aria-hidden>
           <source src="/video/hero.webm" type="video/webm" />
