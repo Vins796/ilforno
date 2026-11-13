@@ -12,6 +12,9 @@ export const negozio = {
   instagram: "https://www.instagram.com/panetteriailforno/",
   facebook: "https://www.facebook.com/Panetteria-Il-Forno-101964995114489/",
   coordinate: { lat: 44.9196084, lng: 7.8483041 },
+  // DA COMPLETARE con i dati di Marco e Anna: compaiono nella privacy policy (/privacy)
+  titolare: "[Ragione sociale da completare]",
+  piva: "[P.IVA da completare]",
 } as const;
 
 const { lat, lng } = negozio.coordinate;

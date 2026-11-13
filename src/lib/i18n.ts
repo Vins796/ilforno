@@ -46,7 +46,7 @@ const it = {
     dashboard: "Apri la dashboard", dashboardHint: "Gestisci ordini, prodotti e andamento del negozio.",
   },
   status: { received: "Ricevuto", preparing: "In preparazione", ready: "Pronto", picked_up: "Ritirato", cancelled: "Annullato" },
-  footer: { rights: "Tutti i diritti riservati.", made: "Fatto con lievito madre e pazienza." },
+  footer: { privacy: "Privacy", rights: "Tutti i diritti riservati.", made: "Fatto con lievito madre e pazienza." },
   theme: { light: "Tema chiaro", dark: "Tema scuro" },
 };
 
@@ -95,7 +95,7 @@ const en: Dict = {
     dashboard: "Open the dashboard", dashboardHint: "Manage orders, products and shop performance.",
   },
   status: { received: "Received", preparing: "Being prepared", ready: "Ready", picked_up: "Picked up", cancelled: "Cancelled" },
-  footer: { rights: "All rights reserved.", made: "Made with sourdough and patience." },
+  footer: { privacy: "Privacy", rights: "All rights reserved.", made: "Made with sourdough and patience." },
   theme: { light: "Light theme", dark: "Dark theme" },
 };
 
