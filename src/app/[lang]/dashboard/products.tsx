@@ -162,7 +162,8 @@ function Editor({ product, onClose, onSave, onDelete }: {
         </div>
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <button disabled={busy} className="btn-primary">{busy ? "…" : "Salva"}</button>
-          <button type="button" onClick={onClose} className="btn-ghost">Chiudi</button>
+          {/* Dopo una modifica il tasto dice chiaramente che le modifiche vengono scartate */}
+          <button type="button" onClick={onClose} className="btn-ghost">{p === product ? "Chiudi" : "Annulla"}</button>
           {p.id && <button type="button" onClick={() => onDelete(p as Product)} className="ml-auto text-sm text-red-600 hover:underline">Elimina</button>}
         </div>
       </form>
