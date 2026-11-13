@@ -4,7 +4,7 @@ import { useEffect, useState, ViewTransition } from "react";
 
 type Toast = { id: number; text: string; error?: boolean };
 
-/** Mostra un avviso in basso al centro; serve un <Toaster /> montato nella pagina. */
+/** Mostra un avviso in alto a destra, sotto l'header; serve un <Toaster /> montato nella pagina. */
 export function toast(text: string, error = false) {
   window.dispatchEvent(new CustomEvent<Omit<Toast, "id">>("toast", { detail: { text, error } }));
 }
@@ -25,7 +25,7 @@ export function Toaster() {
   }, []);
 
   return (
-    <div aria-live="polite" className="pointer-events-none fixed inset-x-4 bottom-6 z-[60] flex flex-col items-center gap-2">
+    <div aria-live="polite" className="pointer-events-none fixed inset-x-4 top-20 z-[60] flex flex-col items-end gap-2 sm:left-auto sm:right-6">
       {toasts.map((t) => (
         <ViewTransition key={t.id} enter="pop" exit="pop" default="none">
           <div role={t.error ? "alert" : "status"}
