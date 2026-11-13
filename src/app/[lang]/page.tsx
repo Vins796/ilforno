@@ -3,6 +3,7 @@ import { dictionaries, type Lang } from "@/lib/i18n";
 import { getProducts } from "@/lib/data";
 import { categories } from "@/lib/types";
 import { ProductCard } from "@/components/product-card";
+import { MapEmbed } from "@/components/consent";
 import { indicazioni, indirizzo, mappaEmbed, negozio } from "@/lib/negozio";
 
 // shortcut: recensioni di esempio, da sostituire con quelle vere (o widget Google) quando disponibili
@@ -118,13 +119,7 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
             <a href={negozio.facebook} target="_blank" rel="noopener noreferrer" className="text-muted underline-offset-4 hover:text-fg hover:underline">{t.visit.facebook}</a>
           </div>
         </div>
-        <iframe
-          title={`${negozio.nome} — ${indirizzo(lang)}`}
-          src={mappaEmbed}
-          className="min-h-80 w-full rounded-3xl border border-line grayscale-[30%]"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
+        <MapEmbed src={mappaEmbed} title={`${negozio.nome} — ${indirizzo(lang)}`} lang={lang} />
       </section>
     </>
   );
