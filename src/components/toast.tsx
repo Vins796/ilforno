@@ -4,7 +4,7 @@ import { useEffect, useState, ViewTransition } from "react";
 
 type Toast = { id: number; text: string; error?: boolean };
 
-/** Mostra un avviso in basso a destra; serve un <Toaster /> montato nella pagina. */
+/** Mostra un avviso in basso al centro; serve un <Toaster /> montato nella pagina. */
 export function toast(text: string, error = false) {
   window.dispatchEvent(new CustomEvent<Omit<Toast, "id">>("toast", { detail: { text, error } }));
 }
@@ -25,14 +25,14 @@ export function Toaster() {
   }, []);
 
   return (
-    <div aria-live="polite" className="pointer-events-none fixed inset-x-4 bottom-4 z-[60] flex flex-col items-end gap-2 sm:left-auto">
+    <div aria-live="polite" className="pointer-events-none fixed inset-x-4 bottom-6 z-[60] flex flex-col items-center gap-2">
       {toasts.map((t) => (
         <ViewTransition key={t.id} enter="pop" exit="pop" default="none">
           <div role={t.error ? "alert" : "status"}
-            className={`animate-in pointer-events-auto flex max-w-sm items-start gap-3 rounded-2xl border px-4 py-3 text-sm shadow-lg ${t.error ? "border-red-500/40 bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-200" : "border-line bg-card"}`}>
-            <span aria-hidden className={t.error ? "" : "text-green-600 dark:text-green-400"}>{t.error ? "⚠" : "✓"}</span>
+            className={`animate-in pointer-events-auto flex w-full max-w-md items-center gap-3 rounded-2xl px-5 py-4 text-sm font-medium shadow-2xl ${t.error ? "bg-red-600 text-white" : "bg-fg text-bg"}`}>
+            <span aria-hidden className={`grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs ${t.error ? "bg-white/20" : "bg-green-500 text-white"}`}>{t.error ? "!" : "✓"}</span>
             <span className="flex-1">{t.text}</span>
-            <button onClick={() => setToasts((ts) => ts.filter((x) => x.id !== t.id))} aria-label="Chiudi avviso" className="text-muted hover:text-fg">×</button>
+            <button onClick={() => setToasts((ts) => ts.filter((x) => x.id !== t.id))} aria-label="Chiudi avviso" className="text-lg leading-none opacity-60 hover:opacity-100">×</button>
           </div>
         </ViewTransition>
       ))}
