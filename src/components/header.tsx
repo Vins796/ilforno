@@ -45,7 +45,7 @@ export function Header({ lang }: { lang: Lang }) {
   return (
     <>
       <header className="intro-header sticky top-0 z-40 border-b border-line/60 bg-bg/80 backdrop-blur-md">
-        <div className="mx-auto flex h-20 max-w-6xl items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-24 max-w-6xl items-center gap-4 px-4 sm:px-6">
           <Link href={`/${lang}`} aria-label="Il Forno — home"><Logo /></Link>
           <nav className="ml-8 hidden gap-7 self-stretch font-serif text-[17px] tracking-tight md:flex">
             {links.map(([key, href, label]) => (
