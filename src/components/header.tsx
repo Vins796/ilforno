@@ -8,14 +8,9 @@ import { dictionaries, formatPrice, type Lang } from "@/lib/i18n";
 import { useCart } from "./cart";
 import { useIsStaff } from "@/lib/use-session";
 
-/** Logo tondo + nome. Il file (public/logo.jpg) è piccolo, 150×150: va bene fino a ~70px. */
-export function Logo({ className = "", size = 40 }: { className?: string; size?: number }) {
-  return (
-    <span className={`inline-flex items-center gap-2.5 font-serif text-2xl font-semibold tracking-tight ${className}`}>
-      <Image src="/logo.jpg" alt="" width={size} height={size} priority className="shrink-0 rounded-full bg-white ring-1 ring-line" />
-      Il Forno
-    </span>
-  );
+/** Logo tondo (contiene già il nome). Il file (public/logo.jpg) è piccolo, 150×150: va bene fino a ~70px. */
+export function Logo({ size = 44 }: { size?: number }) {
+  return <Image src="/logo.jpg" alt="Il Forno" width={size} height={size} priority className="shrink-0 rounded-full bg-white ring-1 ring-line" />;
 }
 
 export function Header({ lang }: { lang: Lang }) {

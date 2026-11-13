@@ -10,7 +10,7 @@ export function Footer({ lang }: { lang: Lang }) {
     <footer className="border-t border-line">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-10 text-sm text-muted sm:flex-row sm:items-end sm:justify-between sm:px-6">
         <div className="space-y-2">
-          <Logo className="text-fg" size={56} />
+          <Logo size={72} />
           <p>{indirizzo(lang)}</p>
           <p><a href={`tel:${negozio.telefono}`} className="hover:text-fg">{negozio.telefonoVisibile}</a></p>
           <p>{t.footer.made}</p>
