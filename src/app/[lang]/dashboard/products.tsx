@@ -5,10 +5,15 @@ import { dictionaries, formatPrice } from "@/lib/i18n";
 import { supabase } from "@/lib/supabase";
 import { categories, type Product } from "@/lib/types";
 import { ProductImage } from "@/components/product-card";
+import { Icon } from "@/components/header";
+import { toast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Field } from "../checkout/form";
 import { refreshCatalog } from "../../actions";
 
 const cat = dictionaries.it.categories;
+// shortcut: filtri e pagine calcolati nel browser sull'elenco completo, va bene fino a qualche centinaio di prodotti
+const PER_PAGE = 10;
 const empty: Omit<Product, "id"> = {
   name_it: "", name_en: "", description_it: "", description_en: "", category: "pane", price_cents: 0,
   unit_it: "pz", unit_en: "pc", image_url: null, available: true, weekly_special: false, requires_advance: false, sort: 0,
@@ -17,6 +22,11 @@ const empty: Omit<Product, "id"> = {
 export function Products({ token }: { token: string }) {
   const [products, setProducts] = useState<Product[]>([]);
   const [editing, setEditingNow] = useState<Partial<Product> | null>(null);
+  const [filter, setFilter] = useState<Product["category"] | "tutte">("tutte");
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [deleting, setDeletingNow] = useState<Product | null>(null);
+  const setDeleting = (p: Product | null) => startTransition(() => setDeletingNow(p));
   // Apertura e chiusura della finestra di modifica con dissolvenza
   const setEditing = (p: Partial<Product> | null) => startTransition(() => setEditingNow(p));
 
@@ -27,29 +37,48 @@ export function Products({ token }: { token: string }) {
    
   useEffect(() => { load(); }, [load]);
 
-  async function save(p: Partial<Product>) {
+  /** true se salvato: in caso di errore la finestra di modifica resta aperta e non si perde nulla */
+  async function save(p: Partial<Product>, done: string) {
     const { id, ...fields } = p;
     const { error } = id ? await supabase().from("products").update(fields).eq("id", id) : await supabase().from("products").insert(fields);
-    if (error) return alert(`Errore: ${error.message}`);
+    if (error) { toast(`Salvataggio non riuscito: ${error.message}`, true); return false; }
     await Promise.all([load(), refreshCatalog(token)]);
+    toast(done);
+    return true;
   }
 
   async function remove(p: Product) {
-    if (!confirm(`Eliminare "${p.name_it}"? Gli ordini passati restano.`)) return;
     const { error } = await supabase().from("products").delete().eq("id", p.id);
-    if (error) return alert(`Errore: ${error.message}`);
-    setEditing(null);
+    if (error) return toast(`Eliminazione non riuscita: ${error.message}`, true);
+    setDeleting(null);
     await Promise.all([load(), refreshCatalog(token)]);
+    toast(`"${p.name_it}" eliminato`);
   }
+
+  const q = query.trim().toLowerCase();
+  const filtered = products.filter((p) =>
+    (filter === "tutte" || p.category === filter) && (!q || `${p.name_it} ${p.name_en}`.toLowerCase().includes(q)));
+  const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const current = Math.min(page, pages);
+  const visible = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
 
   return (
     <>
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">Le modifiche compaiono subito sul sito.</p>
+      <div className="mb-5 flex justify-end">
         <button onClick={() => setEditing({ ...empty, sort: products.length + 1 })} className="btn-primary">+ Nuovo prodotto</button>
       </div>
-      <ul className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card">
-        {products.map((p) => (
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input type="search" value={query} onChange={(e) => { setQuery(e.target.value); setPage(1); }}
+          placeholder="Cerca per nome…" aria-label="Cerca prodotto per nome" className="field sm:max-w-xs" />
+        <div className="flex flex-wrap gap-2" role="group" aria-label="Filtra per categoria">
+          {(["tutte", ...categories] as const).map((c) => (
+            <Toggle key={c} on={filter === c} label={c === "tutte" ? "Tutte" : cat[c]} onClick={() => { setFilter(c); setPage(1); }} />
+          ))}
+        </div>
+      </div>
+      {visible.length === 0 && <p className="rounded-3xl border border-line bg-card p-8 text-center text-muted">Nessun prodotto trovato.</p>}
+      <ul className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card empty:hidden">
+        {visible.map((p) => (
           <li key={p.id} className="flex flex-wrap items-center gap-4 p-4">
             <ProductImage product={p} className="h-14 w-14 shrink-0 rounded-xl" />
             <button onClick={() => setEditing(p)} className="min-w-40 flex-1 text-left">
@@ -57,13 +86,30 @@ export function Products({ token }: { token: string }) {
               <p className="text-sm text-muted">{cat[p.category]} · {formatPrice(p.price_cents, "it")} / {p.unit_it}</p>
             </button>
             <div className="flex flex-wrap gap-2">
-              <Toggle on={p.available} label={p.available ? "Disponibile" : "Esaurito"} onClick={() => save({ id: p.id, available: !p.available })} />
-              <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special })} />
+              <Toggle on={p.available} label={p.available ? "Disponibile" : "Esaurito"} onClick={() => save({ id: p.id, available: !p.available }, `"${p.name_it}" ${p.available ? "segnato come esaurito" : "di nuovo disponibile"}`)} />
+              <Toggle on={p.weekly_special} label="Della settimana" onClick={() => save({ id: p.id, weekly_special: !p.weekly_special }, `"${p.name_it}" ${p.weekly_special ? "tolto dalle" : "aggiunto alle"} chicche della settimana`)} />
+            </div>
+            <div className="flex gap-2">
+              <button onClick={() => setEditing(p)} aria-label={`Modifica ${p.name_it}`} title="Modifica" className="rounded-full p-2 text-muted hover:bg-soft hover:text-fg">
+                <Icon className="h-4 w-4" d="M4 20h4L19 9l-4-4L4 16v4Zm9-13 4 4" />
+              </button>
+              <button onClick={() => setDeleting(p)} aria-label={`Elimina ${p.name_it}`} title="Elimina" className="rounded-full p-2 text-red-600 hover:bg-red-500/10 dark:text-red-400">
+                <Icon className="h-4 w-4" d="M4 7h16M10 11v6m4-6v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+              </button>
             </div>
           </li>
         ))}
       </ul>
-      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { await save(p); setEditing(null); }} onDelete={remove} /></ViewTransition>}
+      {pages > 1 && (
+        <nav className="mt-5 flex items-center justify-center gap-3 text-sm" aria-label="Pagine">
+          <button disabled={current === 1} onClick={() => setPage(current - 1)} className="btn-ghost px-4 py-2">← Prec.</button>
+          <span className="tabular-nums text-muted">Pagina {current} di {pages} · {filtered.length} prodotti</span>
+          <button disabled={current === pages} onClick={() => setPage(current + 1)} className="btn-ghost px-4 py-2">Succ. →</button>
+        </nav>
+      )}
+      {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { if (await save(p, p.id ? `"${p.name_it}" salvato` : `"${p.name_it}" aggiunto al catalogo`)) setEditing(null); }} /></ViewTransition>}
+      {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDialog title={`Eliminare “${deleting.name_it}”?`} body="Il prodotto sparisce dal sito e non si può recuperare. Gli ordini già ricevuti restano."
+        confirmLabel="Elimina" onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
     </>
   );
 }
@@ -76,8 +122,8 @@ function Toggle({ on, label, onClick }: { on: boolean; label: string; onClick: (
   );
 }
 
-function Editor({ product, onClose, onSave, onDelete }: {
-  product: Partial<Product>; onClose: () => void; onSave: (p: Partial<Product>) => Promise<void>; onDelete: (p: Product) => void;
+function Editor({ product, onClose, onSave }: {
+  product: Partial<Product>; onClose: () => void; onSave: (p: Partial<Product>) => Promise<void>;
 }) {
   const [p, setP] = useState(product);
   const [busy, setBusy] = useState(false);
@@ -88,8 +134,9 @@ function Editor({ product, onClose, onSave, onDelete }: {
     const path = `${crypto.randomUUID()}.${file.name.split(".").pop()}`;
     const { error } = await supabase().storage.from("products").upload(path, file, { contentType: file.type });
     setBusy(false);
-    if (error) return alert(`Errore caricamento: ${error.message}`);
+    if (error) return toast(`Foto non caricata: ${error.message}`, true);
     set("image_url", supabase().storage.from("products").getPublicUrl(path).data.publicUrl);
+    toast("Foto caricata: premi Salva per confermarla");
   }
 
   return (
@@ -111,7 +158,7 @@ function Editor({ product, onClose, onSave, onDelete }: {
             </select>
           </Field>
           <Field label="Prezzo (€)">
-            <input required type="number" min={0} step="0.01" value={(p.price_cents ?? 0) / 100} onChange={(e) => set("price_cents", Math.round(Number(e.target.value) * 100))} className="field" />
+            <input required type="number" min={0} step="0.01" defaultValue={(p.price_cents ?? 0) / 100} onChange={(e) => set("price_cents", Math.round(Number(e.target.value) * 100))} className="field" />
           </Field>
           <Field label="Unità (it), es. kg, pz, etto"><input required value={p.unit_it} onChange={(e) => set("unit_it", e.target.value)} className="field" /></Field>
           <Field label="Unità (en)"><input required value={p.unit_en} onChange={(e) => set("unit_en", e.target.value)} className="field" /></Field>
@@ -125,8 +172,8 @@ function Editor({ product, onClose, onSave, onDelete }: {
         </div>
         <div className="flex flex-wrap items-center gap-3 pt-2">
           <button disabled={busy} className="btn-primary">{busy ? "…" : "Salva"}</button>
-          <button type="button" onClick={onClose} className="btn-ghost">Chiudi</button>
-          {p.id && <button type="button" onClick={() => onDelete(p as Product)} className="ml-auto text-sm text-red-600 hover:underline">Elimina</button>}
+          {/* Dopo una modifica il tasto dice chiaramente che le modifiche vengono scartate */}
+          <button type="button" onClick={onClose} className="btn-ghost">{p === product ? "Chiudi" : "Annulla"}</button>
         </div>
       </form>
     </div>

@@ -8,6 +8,8 @@ import { TZ } from "@/lib/orders";
 import type { Order, OrderStatus } from "@/lib/types";
 import { AuthForm } from "@/components/auth-form";
 import { Logo } from "@/components/header";
+import { toast, Toaster } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { updateOrderStatus } from "../../actions";
 import { Products } from "./products";
 import { Stats } from "./stats";
@@ -40,6 +42,7 @@ export function DashboardApp() {
   const token = session.access_token;
   return (
     <div className="min-h-dvh">
+      <Toaster />
       <header className="sticky top-0 z-30 border-b border-line bg-bg/90 backdrop-blur">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
@@ -77,6 +80,7 @@ const columns: OrderStatus[] = ["received", "preparing", "ready"];
 function Orders({ token }: { token: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<Order | null>(null);
   const [live, setLive] = useState(false);
   const known = useRef<Set<string> | null>(null);
 
@@ -106,13 +110,13 @@ function Orders({ token }: { token: string }) {
   }, [load]);
 
   async function move(o: Order, status: OrderStatus) {
-    if (status === "cancelled" && !confirm(`Annullare l'ordine #${o.number}? Il cliente verrà avvisato.`)) return;
     setBusy(o.id);
     try {
       await updateOrderStatus(token, o.id, status);
       await load();
+      toast(`Ordine #${o.number}: ${st[status].toLowerCase()}`);
     } catch (e) {
-      alert(`Errore: ${(e as Error).message}`);
+      toast(`Ordine #${o.number} non aggiornato: ${(e as Error).message}`, true);
     } finally {
       setBusy(null);
     }
@@ -135,7 +139,7 @@ function Orders({ token }: { token: string }) {
               <div className="space-y-3">
                 {list.map((o) => (
                   <ViewTransition key={o.id} name={`ordine-${o.id}`} enter="pop" exit="pop">
-                    <div><OrderCard o={o} busy={busy === o.id} onMove={(s) => move(o, s)} /></div>
+                    <div><OrderCard o={o} busy={busy === o.id} onMove={(s) => s === "cancelled" ? startTransition(() => setCancelling(o)) : move(o, s)} /></div>
                   </ViewTransition>
                 ))}
                 {list.length === 0 && <p className="animate-in px-2 py-6 text-center text-sm text-muted">Nessun ordine</p>}
@@ -156,6 +160,15 @@ function Orders({ token }: { token: string }) {
             ))}
           </ul>
         </details>
+      )}
+      {cancelling && (
+        <ViewTransition enter="pop" exit="pop" default="none">
+          <ConfirmDialog title={`Annullare l'ordine #${cancelling.number}?`}
+            body={`${cancelling.customer_name} riceverà un avviso. L'ordine non si potrà più riattivare.`}
+            confirmLabel="Annulla ordine" cancelLabel="Indietro"
+            onCancel={() => startTransition(() => setCancelling(null))}
+            onConfirm={async () => { await move(cancelling, "cancelled"); startTransition(() => setCancelling(null)); }} />
+        </ViewTransition>
       )}
     </>
   );
