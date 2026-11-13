@@ -4,10 +4,10 @@ export const isLang = (v: string): v is Lang => (locales as readonly string[]).i
 
 const it = {
   nav: { home: "Home", shop: "Prodotti", about: "Chi siamo", visit: "Dove siamo", account: "Account", cart: "Carrello" },
-  hero: { kicker: "Panetteria a Poirino dal cuore", title: "Il pane come si faceva, con la gentilezza di sempre.", cta: "Ordina e ritira", secondary: "La nostra storia" },
+  hero: { kicker: "Artigiani del grano", title: "Il pane di una volta, con la gentilezza di sempre.", cta: "Ordina e ritira", secondary: "La nostra storia" },
   about: {
     kicker: "Chi siamo",
-    title: "Marco e Anna",
+    title: "Marco & Anna",
     body: [
       "Siamo cresciuti a Poirino e qui abbiamo scelto di restare. Marco ha imparato il mestiere proprio tra queste mura, impastando per anni accanto a chi c'era prima di noi.",
       "Tre anni fa Anna — la mente diabolica dietro a tutto — ha avuto l'idea: rilevare il forno e farlo nostro. Da allora custodiamo le ricette della tradizione piemontese e ci divertiamo a proporre ogni settimana qualcosa di nuovo.",
@@ -54,7 +54,7 @@ type Dict = typeof it;
 
 const en: Dict = {
   nav: { home: "Home", shop: "Products", about: "About us", visit: "Visit", account: "Account", cart: "Cart" },
-  hero: { kicker: "A bakery in Poirino, made with heart", title: "Bread the way it used to be, with the kindness of always.", cta: "Order & pick up", secondary: "Our story" },
+  hero: { kicker: "Wheat Artisans", title: "Bread like it used to be, with the same kindness as always.", cta: "Order & pick up", secondary: "Our story" },
   about: {
     kicker: "About us",
     title: "Marco & Anna",
