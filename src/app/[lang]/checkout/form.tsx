@@ -87,7 +87,7 @@ export function CheckoutForm({ lang }: { lang: Lang }) {
             <p className="rounded-2xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-relaxed">{t.disclaimer}</p>
             <div className="grid gap-6 sm:grid-cols-2">
               <Field label={t.date}><input name="date" type="date" required min={today} defaultValue={today} className="field" /></Field>
-              <Field label={t.time}><input name="time" type="time" required min="06:30" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
+              <Field label={t.time}><input name="time" type="time" required min="07:15" max="19:30" step={900} defaultValue="12:00" className="field" /></Field>
             </div>
             <Field label={t.notes}><textarea name="notes" rows={3} className="field resize-y" /></Field>
           </fieldset>

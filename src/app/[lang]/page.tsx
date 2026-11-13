@@ -53,6 +53,21 @@ export default async function Home({ params }: PageProps<"/[lang]">) {
         </div>
       </section>
 
+      {/* PANE DELLA SETTIMANA — calendario fisso dei pani speciali (dal profilo Instagram) */}
+      <section className="reveal mx-auto max-w-6xl px-4 pb-24 sm:px-6">
+        <p className="kicker">{t.daily.kicker}</p>
+        <h2 className="mt-3 font-serif text-4xl sm:text-5xl">{t.daily.title}</h2>
+        <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {t.daily.days.map(([day, bread]) => (
+            <li key={day} className="rounded-3xl border border-line bg-card p-5">
+              <p className="text-sm text-muted">{day}</p>
+              <p className="mt-2 font-serif text-xl leading-snug">{bread}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-6 max-w-3xl text-muted">{t.daily.note}</p>
+      </section>
+
       {/* CHICCHE DELLA SETTIMANA */}
       <section className="reveal bg-soft py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
