@@ -7,6 +7,7 @@ import { categories, type Product } from "@/lib/types";
 import { ProductImage } from "@/components/product-card";
 import { Icon } from "@/components/header";
 import { toast } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { Field } from "../checkout/form";
 import { refreshCatalog } from "../../actions";
 
@@ -107,26 +108,9 @@ export function Products({ token }: { token: string }) {
         </nav>
       )}
       {editing && <ViewTransition enter="pop" exit="pop" default="none"><Editor product={editing} onClose={() => setEditing(null)} onSave={async (p) => { if (await save(p, p.id ? `"${p.name_it}" salvato` : `"${p.name_it}" aggiunto al catalogo`)) setEditing(null); }} /></ViewTransition>}
-      {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDelete product={deleting} onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
+      {deleting && <ViewTransition enter="pop" exit="pop" default="none"><ConfirmDialog title={`Eliminare “${deleting.name_it}”?`} body="Il prodotto sparisce dal sito e non si può recuperare. Gli ordini già ricevuti restano."
+        confirmLabel="Elimina" onCancel={() => setDeleting(null)} onConfirm={() => remove(deleting)} /></ViewTransition>}
     </>
-  );
-}
-
-function ConfirmDelete({ product, onCancel, onConfirm }: { product: Product; onCancel: () => void; onConfirm: () => Promise<void> }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4" onClick={onCancel}>
-      <div role="alertdialog" aria-modal="true" aria-labelledby="elimina-titolo" onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.key === "Escape" && onCancel()} className="w-full max-w-md rounded-3xl bg-card p-6">
-        <h2 id="elimina-titolo" className="font-serif text-2xl">Eliminare &ldquo;{product.name_it}&rdquo;?</h2>
-        <p className="mt-3 text-sm leading-relaxed text-muted">Il prodotto sparisce dal sito e non si può recuperare. Gli ordini già ricevuti restano.</p>
-        <div className="mt-6 flex justify-end gap-3">
-          <button autoFocus onClick={onCancel} className="btn-ghost">Annulla</button>
-          <button disabled={busy} onClick={async () => { setBusy(true); await onConfirm(); setBusy(false); }}
-            className="btn bg-red-600 text-white hover:bg-red-700">{busy ? "…" : "Elimina"}</button>
-        </div>
-      </div>
-    </div>
   );
 }
 

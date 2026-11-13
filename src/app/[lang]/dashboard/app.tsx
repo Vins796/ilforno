@@ -9,6 +9,7 @@ import type { Order, OrderStatus } from "@/lib/types";
 import { AuthForm } from "@/components/auth-form";
 import { Logo } from "@/components/header";
 import { toast, Toaster } from "@/components/toast";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { updateOrderStatus } from "../../actions";
 import { Products } from "./products";
 import { Stats } from "./stats";
@@ -79,6 +80,7 @@ const columns: OrderStatus[] = ["received", "preparing", "ready"];
 function Orders({ token }: { token: string }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState<Order | null>(null);
   const [live, setLive] = useState(false);
   const known = useRef<Set<string> | null>(null);
 
@@ -108,7 +110,6 @@ function Orders({ token }: { token: string }) {
   }, [load]);
 
   async function move(o: Order, status: OrderStatus) {
-    if (status === "cancelled" && !confirm(`Annullare l'ordine #${o.number}? Il cliente verrà avvisato.`)) return;
     setBusy(o.id);
     try {
       await updateOrderStatus(token, o.id, status);
@@ -138,7 +139,7 @@ function Orders({ token }: { token: string }) {
               <div className="space-y-3">
                 {list.map((o) => (
                   <ViewTransition key={o.id} name={`ordine-${o.id}`} enter="pop" exit="pop">
-                    <div><OrderCard o={o} busy={busy === o.id} onMove={(s) => move(o, s)} /></div>
+                    <div><OrderCard o={o} busy={busy === o.id} onMove={(s) => s === "cancelled" ? startTransition(() => setCancelling(o)) : move(o, s)} /></div>
                   </ViewTransition>
                 ))}
                 {list.length === 0 && <p className="animate-in px-2 py-6 text-center text-sm text-muted">Nessun ordine</p>}
@@ -159,6 +160,15 @@ function Orders({ token }: { token: string }) {
             ))}
           </ul>
         </details>
+      )}
+      {cancelling && (
+        <ViewTransition enter="pop" exit="pop" default="none">
+          <ConfirmDialog title={`Annullare l'ordine #${cancelling.number}?`}
+            body={`${cancelling.customer_name} riceverà un avviso. L'ordine non si potrà più riattivare.`}
+            confirmLabel="Annulla ordine" cancelLabel="Indietro"
+            onCancel={() => startTransition(() => setCancelling(null))}
+            onConfirm={async () => { await move(cancelling, "cancelled"); startTransition(() => setCancelling(null)); }} />
+        </ViewTransition>
       )}
     </>
   );
