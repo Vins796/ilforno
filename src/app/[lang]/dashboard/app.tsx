@@ -49,7 +49,7 @@ export function DashboardApp() {
           {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- cambio di layout radice: serve un caricamento completo per il tema */}
           <a href="/it" className="py-3 sm:py-0"><Logo size={48} /></a>
           {/* Come il menu del sito: voce attiva con la linetta colorata appoggiata sul bordo dell'header */}
-          <nav className="order-last flex w-full gap-5 self-stretch text-sm sm:order-none sm:ml-6 sm:w-auto sm:gap-6">
+          <nav className="order-last flex w-full gap-5 self-stretch font-serif text-[17px] tracking-tight sm:order-none sm:ml-8 sm:w-auto sm:gap-7">
             {tabs.map(([id, label]) => (
               <button key={id} onClick={() => startTransition(() => setTab(id))} aria-current={tab === id ? "page" : undefined}
                 className={`relative flex shrink-0 items-center py-3 hover:text-fg sm:py-0 ${tab === id ? "text-fg" : "text-muted"}`}>
