@@ -9,19 +9,24 @@ const it = {
     kicker: "Chi siamo",
     title: "Marco & Anna",
     body: [
-      "Siamo cresciuti a Poirino e qui abbiamo scelto di restare. Marco ha imparato il mestiere proprio tra queste mura, impastando per anni accanto a chi c'era prima di noi.",
-      "Tre anni fa Anna — la mente diabolica dietro a tutto — ha avuto l'idea: rilevare il forno e farlo nostro. Da allora custodiamo le ricette della tradizione piemontese e ci divertiamo a proporre ogni settimana qualcosa di nuovo.",
-      "Ma la cosa a cui teniamo di più è semplice: che chi entra si senta accolto, come a casa.",
+      "Il Forno è la panetteria storica di via Cavour, quella “dell'angolo”. Marco ha imparato il mestiere proprio qui, impastando per anni accanto a chi c'era prima di noi. Tre anni fa abbiamo deciso di rilevarla e portare avanti la sua tradizione.",
+      "Marco impasta e sforna di notte, quando il paese dorme, e all'alba quando si sveglia. Anna è la mente (e le mani) dietro ai dolci: inventa, organizza e, quando serve, ti accoglie al banco con il sorriso. Con noi ci sono Michela e Irene al banco e Federico in laboratorio.",
+      "Scegliamo grani di qualità, come il grano antico di Cerere Madre Terra, coltivato qui a Poirino, e seguiamo le ricette della tradizione piemontese. Ma la cosa a cui teniamo di più è semplice: che chi entra si senta accolto, come a casa.",
     ],
-    values: ["Ricette del territorio", "Lievitazioni lente", "Accoglienza prima di tutto"],
+    values: ["Grani antichi a km 0", "Ricette della tradizione", "Accoglienza prima di tutto"],
+  },
+  daily: {
+    kicker: "Ogni giorno una bontà diversa", title: "Il pane della settimana",
+    days: [["Lunedì", "Pane di grano antico"], ["Martedì", "Pane ai 7 cereali"], ["Mercoledì", "Pane e focaccia zucca e curcuma"], ["Giovedì", "Pane di segale"], ["Venerdì e sabato", "La specialità del mese"]],
+    note: "Oltre ai pani di sempre: biova piemontese, maggiolino, toscanino, pasta dura, panino all'olio e i nostri grissini rubatà.",
   },
   specials: { kicker: "Questa settimana", title: "Le chicche della settimana", empty: "Le novità della settimana arrivano a breve." },
   categories: { title: "Cosa sforniamo", pane: "Pane", focacce: "Focacce", dolci: "Dolci", torte: "Torte", stagionali: "Stagionali" },
   reviews: { kicker: "Dicono di noi", title: "Il sorriso fa parte della ricetta" },
   visit: {
     kicker: "Dove siamo", title: "Vieni a trovarci",
-    // shortcut: orari di apertura provvisori; i giorni di chiusura (mercoledì pomeriggio, domenica) sono quelli veri
-    hours: "Orari", days: [["Lun · Mar · Gio · Ven · Sab", "6:30 – 13:00 · 16:00 – 19:30"], ["Mercoledì", "6:30 – 13:00"], ["Domenica", "Chiuso"]],
+    // Fonte: post Instagram con gli orari (Lun–Sab 7:15–12:45 · 16:00–19:30) e profilo (chiuso mercoledì pomeriggio e domenica)
+    hours: "Orari", days: [["Lun · Mar · Gio · Ven · Sab", "7:15 – 12:45 · 16:00 – 19:30"], ["Mercoledì", "7:15 – 12:45"], ["Domenica", "Chiuso"]],
     phone: "Chiama", instagram: "Instagram", facebook: "Facebook", directions: "Indicazioni stradali",
   },
   shop: {
@@ -64,18 +69,23 @@ const en: Dict = {
     kicker: "About us",
     title: "Marco & Anna",
     body: [
-      "We grew up in Poirino and chose to stay. Marco learned his craft within these very walls, kneading dough for years alongside the bakers who came before us.",
-      "Three years ago Anna — the evil genius behind it all — had the idea: take over the bakery and make it ours. Since then we have kept Piedmont's traditional recipes alive, and every week we enjoy baking something new.",
-      "What matters most to us is simple: that everyone who walks in feels welcome, like at home.",
+      "Il Forno is the historic bakery on Via Cavour, the one “on the corner”. Marco learned the trade right here, kneading for years alongside those who came before us. Three years ago we decided to take it over and carry its tradition forward.",
+      "Marco kneads and bakes at night, while the town sleeps, and at dawn as it wakes up. Anna is the mind (and the hands) behind the cakes and pastries: she invents, organises and, when needed, welcomes you at the counter with a smile. With us are Michela and Irene at the counter and Federico in the bakehouse.",
+      "We choose quality grains, like the ancient wheat from Cerere Madre Terra, grown right here in Poirino, and we follow traditional Piedmontese recipes. But what matters most to us is simple: that everyone who walks in feels welcome, as if at home.",
     ],
-    values: ["Local recipes", "Slow fermentation", "Hospitality first"],
+    values: ["Local ancient grains", "Traditional recipes", "Hospitality first"],
+  },
+  daily: {
+    kicker: "A different treat every day", title: "This week's bread",
+    days: [["Monday", "Ancient wheat bread"], ["Tuesday", "7-grain bread"], ["Wednesday", "Pumpkin & turmeric bread and focaccia"], ["Thursday", "Rye bread"], ["Friday & Saturday", "Speciality of the month"]],
+    note: "Plus our everyday loaves: Piedmontese biova, maggiolino, toscanino, pasta dura, olive oil rolls and our hand-rolled rubatà breadsticks.",
   },
   specials: { kicker: "This week", title: "This week's treats", empty: "This week's specials are coming soon." },
   categories: { title: "What comes out of our oven", pane: "Bread", focacce: "Focaccia", dolci: "Pastries", torte: "Cakes", stagionali: "Seasonal" },
   reviews: { kicker: "Kind words", title: "A smile is part of the recipe" },
   visit: {
     kicker: "Visit", title: "Come and see us",
-    hours: "Opening hours", days: [["Mon · Tue · Thu · Fri · Sat", "6:30 – 13:00 · 16:00 – 19:30"], ["Wednesday", "6:30 – 13:00"], ["Sunday", "Closed"]],
+    hours: "Opening hours", days: [["Mon · Tue · Thu · Fri · Sat", "7:15 – 12:45 · 16:00 – 19:30"], ["Wednesday", "7:15 – 12:45"], ["Sunday", "Closed"]],
     phone: "Call", instagram: "Instagram", facebook: "Facebook", directions: "Get directions",
   },
   shop: {
